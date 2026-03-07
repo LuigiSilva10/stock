@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock .</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Utility to hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-full font-sans transition-colors duration-300 bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-20 flex flex-col items-center py-6 border-r transition-all duration-300 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+        <div class="mb-8 p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30">
+            <i data-lucide="layout-grid" class="w-8 h-8 text-white"></i>
+        </div>
+
+        <nav class="flex-1 flex flex-col gap-4 w-full px-2">
+            <div class="flex flex-col gap-2 items-center w-full p-2 rounded-xl bg-opacity-50">
+                <button id="zoom-in" class="p-3 rounded-xl transition-all w-full flex justify-center hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 dark:hover:bg-slate-800 dark:text-slate-400 dark:hover:text-indigo-400" title="Aumentar Zoom">
+                    <i data-lucide="zoom-in" class="w-5 h-5"></i>
+                </button>
+                <span id="zoom-level" class="text-xs font-mono opacity-50">100%</span>
+                <button id="zoom-out" class="p-3 rounded-xl transition-all w-full flex justify-center hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 dark:hover:bg-slate-800 dark:text-slate-400 dark:hover:text-indigo-400" title="Diminuir Zoom">
+                    <i data-lucide="zoom-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="h-px w-10 mx-auto bg-slate-200 dark:bg-slate-800"></div>
+
+            <button id="theme-toggle" class="p-3 rounded-xl transition-all mx-2 flex justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:text-yellow-400 dark:bg-slate-800" title="Alternar Tema">
+                <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+            </button>
+        </nav>
+        
+        <div class="mt-auto">
+          <button class="p-3 rounded-xl transition-all text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+          </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col md:pl-20 transition-all duration-300 w-full min-w-0 h-full">
+        
+        <!-- Header -->
+        <header class="sticky top-0 z-30 transition-colors duration-300 bg-white/80 backdrop-blur-md border-b border-slate-200 dark:bg-slate-950/80 dark:border-slate-800">
+            <div class="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+                
+                <div class="flex items-center gap-4">
+                    <h1 class="text-2xl font-black tracking-tighter flex items-center gap-1 text-slate-900 dark:text-white">
+                        STOCK <span class="text-indigo-500">.</span>
+                    </h1>
+                </div>
+
+                <!-- Search Bar (Visible only when data exists) -->
+                <div id="search-container" class="hidden flex-1 max-w-3xl mx-auto">
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors text-slate-400 group-focus-within:text-indigo-500 dark:text-slate-500 dark:group-focus-within:text-indigo-400">
+                            <i data-lucide="search" class="h-5 w-5"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="search-input"
+                            class="block w-full pl-12 pr-4 py-3 rounded-2xl text-sm transition-all outline-none shadow-sm bg-slate-100 border border-transparent focus:bg-white focus:border-indigo-200 focus:shadow-xl focus:shadow-indigo-500/5 text-slate-900 placeholder-slate-400 dark:bg-slate-900 dark:border-slate-800 dark:focus:border-indigo-500/50 dark:focus:bg-slate-800 dark:focus:shadow-indigo-500/10 dark:text-slate-100 dark:placeholder-slate-600"
+                            placeholder="Pesquisar..."
+                        >
+                        <button id="clear-search" class="hidden absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- File Info -->
+                <div id="file-info" class="flex items-center gap-3">
+                    <div id="file-badge" class="hidden lg:flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium border bg-white border-slate-200 text-slate-600 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 text-green-500"></i>
+                        <div class="flex flex-col leading-none">
+                            <span class="truncate max-w-[120px] text-xs opacity-50">Arquivo</span>
+                            <span id="file-name-display" class="truncate max-w-[120px] font-semibold">arquivo.xlsx</span>
+                        </div>
+                        <div class="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-2"></div>
+                        <span id="sheet-name-display" class="text-indigo-500 truncate max-w-[100px]" title="Aba">Sheet1</span>
+                        <button id="clear-data-btn" class="ml-2 p-1 rounded-full transition-colors hover:bg-red-50 text-slate-400 hover:text-red-500 dark:hover:bg-red-900/30 dark:text-slate-500 dark:hover:text-red-400">
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Area -->
+        <main id="main-container" class="flex-1 w-full mx-auto flex flex-col overflow-hidden justify-center px-4 sm:px-6 lg:px-8 py-6">
+            
+            <!-- Upload Area -->
+            <div id="upload-area" class="max-w-2xl mx-auto w-full transition-all duration-500">
+                <div 
+                    id="drop-zone"
+                    class="relative group cursor-pointer border-2 border-dashed rounded-[2rem] p-16 text-center transition-all duration-500 border-slate-300 hover:border-indigo-400 hover:bg-white bg-slate-50/50 dark:border-slate-800 dark:hover:border-indigo-500/50 dark:hover:bg-slate-900 dark:bg-slate-900/50"
+                >
+                    <input id="file-upload" type="file" accept=".xlsx, .xls, .xlsm" class="hidden" />
+                    <div class="flex flex-col items-center gap-6">
+                        <div class="p-6 rounded-3xl transition-colors duration-500 shadow-2xl bg-white text-slate-400 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-indigo-500/30 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-indigo-600 dark:group-hover:text-white dark:group-hover:shadow-indigo-500/20">
+                            <i id="upload-icon" data-lucide="upload" class="w-12 h-12"></i>
+                            <i id="loading-icon" data-lucide="loader-2" class="w-12 h-12 animate-spin hidden"></i>
+                        </div>
+                        <div class="space-y-3">
+                            <h3 id="upload-text" class="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-200">
+                                Importar Estoque
+                            </h3>
+                            <p class="text-slate-500 text-lg">Arraste sua planilha Excel ou clique para buscar</p>
+                        </div>
+                        <div id="error-message" class="hidden flex items-center gap-2 text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400 px-4 py-2 rounded-lg mt-4">
+                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                            <span id="error-text" class="text-sm font-medium">Erro</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Area -->
+            <div id="results-area" class="hidden flex-col h-full w-full">
+                <div class="flex items-center justify-between text-sm text-slate-500 px-4 py-2 flex-shrink-0 border-b border-slate-200 dark:border-slate-800">
+                    <span id="results-count">Mostrando 0 de 0 itens</span>
+                </div>
+
+                <div class="overflow-hidden flex flex-col flex-1 transition-all duration-300 bg-white dark:bg-slate-900">
+                    <div class="flex-1 overflow-auto bg-opacity-50" id="table-scroll-container">
+                        <div id="zoom-container" style="transform-origin: top left; min-width: 100%;">
+                            <!-- Header -->
+                            <div id="table-header" class="sticky top-0 z-20 grid border-b font-semibold text-xs uppercase tracking-wider bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800">
+                                <!-- Headers injected via JS -->
+                            </div>
+
+                            <!-- Body -->
+                            <div id="table-body" class="divide-y divide-slate-100 dark:divide-slate-800/50">
+                                <!-- Rows injected via JS -->
+                            </div>
+                            
+                            <!-- Load More -->
+                            <div id="load-more-container" class="hidden p-4 flex justify-center border-t bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+                                <button id="load-more-btn" class="flex items-center gap-2 px-6 py-2 border rounded-full transition-all shadow-sm text-sm font-medium bg-white border-slate-300 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400 dark:hover:border-indigo-800">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                    <span id="load-more-text">Carregar mais itens</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer (Only visible when no data) -->
+        <footer id="footer" class="border-t py-4 mt-auto bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+            <div class="max-w-[1600px] mx-auto px-4 text-center text-slate-400 text-xs flex justify-between items-center">
+                <p>© <span id="year"></span></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <div id="floating-cart-btn" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-30 px-6 py-3 rounded-full shadow-xl flex items-center gap-4 cursor-pointer transition-all duration-300 bg-slate-900 text-white hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500">
+        <div class="rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold bg-indigo-500 text-white dark:bg-white dark:text-indigo-600" id="cart-count-badge">0</div>
+        <span id="cart-btn-text" class="font-medium transition-all">Itens na lista</span>
+        <div class="h-4 w-px bg-slate-700 dark:bg-indigo-400"></div>
+        <span id="cart-btn-subtext" class="text-sm flex items-center gap-2 text-slate-300 dark:text-indigo-100 transition-all">
+            Ver lista <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+        </span>
+    </div>
+
+    <!-- Cart Modal (Centered) -->
+    <div id="cart-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/50 backdrop-blur-sm">
+        <div class="rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 transform transition-transform duration-300 translate-y-full sm:translate-y-0" id="cart-modal-content">
+            <div class="p-4 border-b flex items-center justify-between flex-shrink-0 rounded-t-2xl bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-indigo-600"></i>
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Lista de Materiais</h2>
+                    <span id="cart-count-badge-modal" class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+                </div>
+                <button id="close-cart-btn" class="p-2 rounded-full transition-colors hover:bg-slate-200 text-slate-500 dark:hover:bg-slate-700 dark:text-slate-400">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Global settings -->
+                <div class="p-4 grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Funcionário</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                            <input type="text" id="cart-employee" required class="w-full pl-9 pr-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="Nome do solicitante">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Tipo (SAP)</label>
+                        <div class="relative">
+                            <i data-lucide="tag" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                            <input type="text" id="cart-type" class="w-full pl-9 pr-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value="L">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+                    <!-- Cart Items injected via JS -->
+                </div>
+
+                <div class="p-4 border-t rounded-b-2xl flex gap-3 bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700 flex-shrink-0">
+                    <button id="clear-cart-btn" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Limpar
+                    </button>
+                    <button id="copy-cart-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i data-lucide="copy" class="w-4 h-4"></i> Copiar para SAP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let state = {
+            data: [],
+            headers: [],
+            filteredData: [],
+            cart: [],
+            isDarkMode: false,
+            searchTerm: '',
+            visibleCount: 50,
+            zoomLevel: 1,
+            fileName: '',
+            sheetName: '',
+            columns: {
+                description: '',
+                code: ''
+            }
+        };
+
+        // DOM Elements
+        let elements = {};
+
+        // Constants
+        const ITEMS_PER_PAGE = 50;
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+
+        function init() {
+            console.log('Iniciando aplicação...');
+            
+            // Map elements
+            elements = {
+                html: document.documentElement,
+                dropZone: document.getElementById('drop-zone'),
+                fileUpload: document.getElementById('file-upload'),
+                uploadArea: document.getElementById('upload-area'),
+                resultsArea: document.getElementById('results-area'),
+                tableHeader: document.getElementById('table-header'),
+                tableBody: document.getElementById('table-body'),
+                searchContainer: document.getElementById('search-container'),
+                searchInput: document.getElementById('search-input'),
+                clearSearchBtn: document.getElementById('clear-search'),
+                resultsCount: document.getElementById('results-count'),
+                loadMoreBtn: document.getElementById('load-more-btn'),
+                loadMoreContainer: document.getElementById('load-more-container'),
+                themeToggle: document.getElementById('theme-toggle'),
+                zoomIn: document.getElementById('zoom-in'),
+                zoomOut: document.getElementById('zoom-out'),
+                zoomLevelDisplay: document.getElementById('zoom-level'),
+                zoomContainer: document.getElementById('zoom-container'),
+                fileInfo: document.getElementById('file-info'),
+                fileBadge: document.getElementById('file-badge'),
+                fileNameDisplay: document.getElementById('file-name-display'),
+                sheetNameDisplay: document.getElementById('sheet-name-display'),
+                clearDataBtn: document.getElementById('clear-data-btn'),
+                footer: document.getElementById('footer'),
+                year: document.getElementById('year'),
+                mainContainer: document.getElementById('main-container'),
+
+                // Cart Elements
+                floatingCartBtn: document.getElementById('floating-cart-btn'),
+                cartBtnText: document.getElementById('cart-btn-text'),
+                cartBtnSubtext: document.getElementById('cart-btn-subtext'),
+                cartCountBadge: document.getElementById('cart-count-badge'),
+                cartCountBadgeModal: document.getElementById('cart-count-badge-modal'),
+                cartModal: document.getElementById('cart-modal'),
+                cartModalContent: document.getElementById('cart-modal-content'),
+                closeCartBtn: document.getElementById('close-cart-btn'),
+                cartItemsContainer: document.getElementById('cart-items-container'),
+                clearCartBtn: document.getElementById('clear-cart-btn'),
+                copyCartBtn: document.getElementById('copy-cart-btn'),
+                cartEmployee: document.getElementById('cart-employee'),
+                cartType: document.getElementById('cart-type'),
+
+                // Loading/Error
+                uploadIcon: document.getElementById('upload-icon'),
+                loadingIcon: document.getElementById('loading-icon'),
+                uploadText: document.getElementById('upload-text'),
+                errorMessage: document.getElementById('error-message'),
+                errorText: document.getElementById('error-text')
+            };
+
+            // Check if XLSX is loaded
+            if (typeof XLSX === 'undefined') {
+                console.error('ERRO CRÍTICO: Biblioteca SheetJS (XLSX) não foi carregada.');
+                alert('Erro: A biblioteca de leitura de Excel não foi carregada. Verifique sua conexão com a internet e recarregue a página.');
+            }
+
+            if (elements.year) elements.year.textContent = new Date().getFullYear();
+            
+            // Check system preference for dark mode
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                setDarkMode(true);
+            } else {
+                setDarkMode(false);
+            }
+            
+            // Load cart from localStorage
+            const savedCart = localStorage.getItem('stockCart');
+            if (savedCart) {
+                try {
+                    state.cart = JSON.parse(savedCart);
+                    updateCartUI();
+                } catch (e) {
+                    console.error('Erro ao carregar carrinho:', e);
+                    localStorage.removeItem('stockCart');
+                }
+            }
+            const savedEmployee = localStorage.getItem('stockEmployee');
+            if (savedEmployee && elements.cartEmployee) {
+                elements.cartEmployee.value = savedEmployee;
+            }
+
+            setupEventListeners();
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // File Upload
+            if (elements.dropZone && elements.fileUpload) {
+                elements.dropZone.addEventListener('click', () => elements.fileUpload.click());
+                elements.fileUpload.addEventListener('change', handleFileSelect);
+                
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    elements.dropZone.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    elements.dropZone.addEventListener(eventName, highlight, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    elements.dropZone.addEventListener(eventName, unhighlight, false);
+                });
+                
+                elements.dropZone.addEventListener('drop', handleDrop, false);
+            }
+
+            // Search
+            if (elements.searchInput) elements.searchInput.addEventListener('input', handleSearch);
+            if (elements.clearSearchBtn) elements.clearSearchBtn.addEventListener('click', () => {
+                elements.searchInput.value = '';
+                handleSearch({ target: { value: '' } });
+            });
+            
+            // Theme
+            if (elements.themeToggle) elements.themeToggle.addEventListener('click', toggleDarkMode);
+            
+            // Zoom
+            if (elements.zoomIn) elements.zoomIn.addEventListener('click', () => handleZoom(0.1));
+            if (elements.zoomOut) elements.zoomOut.addEventListener('click', () => handleZoom(-0.1));
+            
+            // Data Management
+            if (elements.clearDataBtn) elements.clearDataBtn.addEventListener('click', clearData);
+            if (elements.loadMoreBtn) elements.loadMoreBtn.addEventListener('click', loadMore);
+            
+            // Cart
+            if (elements.floatingCartBtn) elements.floatingCartBtn.addEventListener('click', openCart);
+            if (elements.closeCartBtn) elements.closeCartBtn.addEventListener('click', closeCart);
+            if (elements.cartModal) elements.cartModal.addEventListener('click', (e) => {
+                if (e.target === elements.cartModal) closeCart();
+            });
+            if (elements.clearCartBtn) elements.clearCartBtn.addEventListener('click', clearCart);
+            if (elements.copyCartBtn) elements.copyCartBtn.addEventListener('click', copyCartToClipboard);
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    if (elements.searchInput) elements.searchInput.focus();
+                }
+                if (e.key === 'Escape') {
+                    closeCart();
+                }
+            });
+        }
+
+        // File Handling
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight() {
+            elements.dropZone.classList.add('border-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-900/20');
+        }
+
+        function unhighlight() {
+            elements.dropZone.classList.remove('border-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-900/20');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            
+            if (!file.name.match(/\.(xls|xlsx|xlsm)$/i)) {
+                showError('Por favor, envie um arquivo Excel (.xls, .xlsx ou .xlsm)');
+                return;
+            }
+
+            setLoading(true);
+            state.fileName = file.name;
+
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    let sheetName = workbook.SheetNames.find(name => 
+                        name.toLowerCase().trim() === 'estoque' || 
+                        name.toLowerCase().includes('estoque')
+                    );
+                    
+                    if (!sheetName) sheetName = workbook.SheetNames[0];
+                    
+                    state.sheetName = sheetName;
+                    const worksheet = workbook.Sheets[sheetName];
+                    
+                    // Header Row Detection (matching React logic)
+                    const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    let headerRowIndex = 0;
+                    let maxMatches = 0;
+                    const keywords = ['material', 'texto', 'desc', 'cod', 'cód', 'qtd', 'unid', 'montante', 'depósito', 'centro', 'utilização', 'estoque'];
+
+                    for (let i = 0; i < Math.min(rawData.length, 25); i++) {
+                        const row = rawData[i];
+                        if (!row || row.length === 0) continue;
+                        const rowStr = row.map(cell => String(cell).toLowerCase()).join(' ');
+                        let matches = 0;
+                        keywords.forEach(kw => { if (rowStr.includes(kw)) matches++; });
+                        const stringCount = row.filter(c => typeof c === 'string' && c.trim().length > 0).length;
+                        const score = (matches * 5) + stringCount;
+                        if (score > maxMatches) { maxMatches = score; headerRowIndex = i; }
+                    }
+
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { range: headerRowIndex, defval: "" });
+                    
+                    processData(jsonData);
+                    setLoading(false);
+                } catch (err) {
+                    console.error('Erro ao processar Excel:', err);
+                    showError('Erro ao processar o arquivo. Verifique se é um Excel válido.');
+                    setLoading(false);
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function normalize(text) {
+            return String(text).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, "");
+        }
+
+        function processData(jsonData) {
+            if (jsonData.length === 0) {
+                showError('A planilha está vazia ou não pôde ser lida.');
+                return;
+            }
+
+            const firstRow = jsonData[0];
+            let cols = Object.keys(firstRow).filter(key => {
+                if (key.startsWith('__EMPTY') || key.trim() === '') return false;
+                const k = normalize(key);
+                
+                if (k.includes('material') || k.includes('cod')) return true;
+                if (k.includes('texto') || k.includes('desc')) return true;
+                if (k.includes('umb') || k === 'unid') return true;
+                if (k.includes('dep') || k.includes('deposito')) return true;
+                if (k.includes('utilizacao') && k.includes('livre')) return true;
+                if (k.includes('valor') || k.includes('unitario') || k.includes('preco')) return true;
+                
+                return false;
+            });
+
+            // Sort columns: Material -> Texto -> UMB -> DEP -> Utilização -> Valor
+            cols.sort((a, b) => {
+                const ka = normalize(a);
+                const kb = normalize(b);
+                
+                const getScore = (k) => {
+                     if (k.includes('material') || k.includes('cod')) return 1;
+                     if (k.includes('texto') || k.includes('desc')) return 2;
+                     if (k.includes('umb') || k === 'unid') return 3;
+                     if (k.includes('dep') || k.includes('deposito')) return 4;
+                     if (k.includes('utilizacao') && k.includes('livre')) return 5;
+                     if (k.includes('valor') || k.includes('unitario') || k.includes('preco')) return 6;
+                     return 10;
+                };
+                
+                return getScore(ka) - getScore(kb);
+            });
+
+            state.headers = cols; 
+            state.data = jsonData.map((row, index) => ({ ...row, _originalIndex: index }));
+            state.filteredData = jsonData;
+            
+            // Smart Column Detection
+            state.columns.description = cols.find(h => {
+                const n = normalize(h);
+                return n.includes('texto') || n.includes('desc');
+            }) || cols[1];
+            
+            state.columns.code = cols.find(h => {
+                const n = normalize(h);
+                return n.includes('material') || n.includes('cod');
+            }) || cols[0];
+            
+            // UI Updates
+            elements.uploadArea.classList.add('hidden');
+            elements.resultsArea.classList.remove('hidden');
+            elements.resultsArea.classList.add('flex');
+            elements.fileBadge.classList.remove('hidden');
+            elements.fileBadge.classList.add('flex');
+            elements.searchContainer.classList.remove('hidden');
+            elements.fileNameDisplay.textContent = state.fileName;
+            elements.sheetNameDisplay.textContent = state.sheetName;
+            elements.footer.classList.add('hidden');
+            elements.mainContainer.classList.remove('px-4', 'sm:px-6', 'lg:px-8', 'py-6');
+            elements.mainContainer.classList.add('p-0');
+
+            renderHeader();
+            renderTable();
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                elements.uploadIcon.classList.add('hidden');
+                elements.loadingIcon.classList.remove('hidden');
+                elements.uploadText.textContent = 'Processando...';
+                elements.errorMessage.classList.add('hidden');
+            } else {
+                elements.uploadIcon.classList.remove('hidden');
+                elements.loadingIcon.classList.add('hidden');
+                elements.uploadText.textContent = 'Importar Estoque';
+            }
+        }
+
+        function showError(msg) {
+            elements.errorMessage.classList.remove('hidden');
+            elements.errorText.textContent = msg;
+        }
+
+        function clearData() {
+            state.data = [];
+            state.headers = [];
+            state.filteredData = [];
+            state.visibleCount = ITEMS_PER_PAGE;
+            if (elements.searchInput) elements.searchInput.value = '';
+            if (elements.fileUpload) elements.fileUpload.value = '';
+            
+            elements.uploadArea.classList.remove('hidden');
+            elements.resultsArea.classList.add('hidden');
+            elements.resultsArea.classList.remove('flex');
+            elements.fileBadge.classList.add('hidden');
+            elements.fileBadge.classList.remove('flex');
+            elements.searchContainer.classList.add('hidden');
+            elements.footer.classList.remove('hidden');
+            elements.mainContainer.classList.add('px-4', 'sm:px-6', 'lg:px-8', 'py-6');
+            elements.mainContainer.classList.remove('p-0');
+        }
+
+        function formatNumber(value) {
+            if (value === undefined || value === null || value === '') return '';
+            if (typeof value === 'number') {
+                return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+            }
+            const strVal = String(value).trim();
+            let num = parseFloat(strVal.replace(',', '.'));
+            if (!isNaN(num)) {
+               return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+            }
+            return value;
+        }
+
+        // Rendering
+        function renderHeader() {
+            elements.tableHeader.innerHTML = '';
+            
+            // Data Columns
+            state.headers.forEach(header => {
+                const th = document.createElement('div');
+                const isMain = header === state.columns.description;
+                
+                th.className = `px-6 py-4 border-r border-transparent flex items-center gap-2 overflow-hidden ${
+                    isMain 
+                    ? state.isDarkMode ? 'text-indigo-400 bg-indigo-900/20' : 'text-indigo-600 bg-indigo-50/50' 
+                    : ''
+                }`;
+                
+                let headerText = header;
+                const nHeader = normalize(header);
+                if (nHeader.includes('utilizacao') && nHeader.includes('livre')) headerText = 'Disponível';
+                if (nHeader.includes('valor') || nHeader.includes('unitario') || nHeader.includes('preco')) headerText = 'Valor Unitário';
+
+                th.innerHTML = `
+                    <span class="truncate">${headerText}</span>
+                    ${isMain ? '<i data-lucide="arrow-up-down" class="w-3 h-3 flex-shrink-0"></i>' : ''}
+                `;
+                th.title = header;
+                
+                elements.tableHeader.appendChild(th);
+            });
+
+            // Action Column
+            const actionTh = document.createElement('div');
+            actionTh.className = 'px-4 py-4 border-r border-transparent flex justify-center items-center';
+            actionTh.innerHTML = '<span class="sr-only">Ações</span>';
+            elements.tableHeader.appendChild(actionTh);
+
+            // Set Grid Template Columns
+            const gridTemplate = `${state.headers.map(h => 
+                h === state.columns.description ? 'minmax(0, 3fr)' : 'minmax(0, 1fr)'
+            ).join(' ')} 60px`;
+            
+            elements.tableHeader.style.gridTemplateColumns = gridTemplate;
+            elements.tableBody.style.display = 'grid';
+        }
+
+        function renderTable() {
+            const fragment = document.createDocumentFragment();
+            const itemsToShow = state.filteredData.slice(0, state.visibleCount);
+            
+            // Grid Template for Rows
+            const gridTemplate = `${state.headers.map(h => 
+                h === state.columns.description ? 'minmax(0, 3fr)' : 'minmax(0, 1fr)'
+            ).join(' ')} 60px`;
+            
+            elements.tableBody.innerHTML = '';
+            
+            itemsToShow.forEach((row, index) => {
+                const originalIndex = row._originalIndex;
+                const rowDiv = document.createElement('div');
+                const isCode = state.columns.code && row[state.columns.code];
+                const isInCart = isCode && state.cart.some(item => item.materialCode === String(row[state.columns.code]));
+
+                rowDiv.className = `
+                    border-b transition-colors group items-center
+                    ${state.isDarkMode ? 'border-slate-800' : 'border-slate-100'}
+                    ${isInCart 
+                        ? (state.isDarkMode ? 'bg-green-900/20' : 'bg-green-50/60')
+                        : (state.isDarkMode ? 'hover:bg-slate-800/60 even:bg-slate-900/40' : 'hover:bg-slate-50 even:bg-slate-50/50')
+                    }
+                `;
+                rowDiv.style.display = 'grid';
+                rowDiv.style.gridTemplateColumns = gridTemplate;
+                
+                // Data Cells
+                state.headers.forEach(header => {
+                    const cell = document.createElement('div');
+                    const value = String(row[header] || '');
+                    const isMain = header === state.columns.description;
+                    const nHeader = normalize(header);
+                    const isDep = nHeader.includes('dep');
+                    const isE99 = isDep && value.toUpperCase().includes('E99');
+                    
+                    cell.className = `
+                        px-6 py-3 cursor-pointer select-none flex items-center
+                        ${isMain ? 'whitespace-normal' : 'whitespace-nowrap'}
+                        border-r border-transparent
+                        ${isMain 
+                            ? state.isDarkMode ? 'font-medium text-slate-200 bg-indigo-900/10 group-hover:bg-indigo-900/20' : 'font-medium text-slate-900 bg-indigo-50/10 group-hover:bg-indigo-50/30' 
+                            : ''}
+                        ${isE99 
+                            ? (state.isDarkMode ? 'bg-green-800 text-green-100 font-semibold' : 'bg-green-200 text-green-900 font-semibold')
+                            : ''}
+                    `;
+                    cell.title = "Clique para copiar";
+                    cell.onclick = (e) => { e.stopPropagation(); handleCopy(value); };
+
+                    // Formatter
+                    let displayValue = value;
+                    if (nHeader.includes('utilizacao') || nHeader.includes('valor') || nHeader.includes('preco')) {
+                        displayValue = formatNumber(value);
+                    }
+
+                    // Highlight
+                    if (state.searchTerm && displayValue.toLowerCase().includes(state.searchTerm.toLowerCase())) {
+                        const regex = new RegExp(`(${state.searchTerm})`, 'gi');
+                        displayValue = displayValue.replace(regex, '<span class="bg-yellow-200 text-slate-900 font-semibold px-0.5 rounded">$1</span>');
+                    }
+
+                    let content = `
+                        <div class="flex items-center justify-between gap-2 w-full ${isMain ? '' : 'overflow-hidden'}">
+                            <span class="truncate">${displayValue}</span>
+                            ${isMain ? `
+                                <button
+                                    onclick="event.stopPropagation(); window.open('https://www.google.com/search?tbm=isch&q=${encodeURIComponent(value)}', '_blank')"
+                                    class="p-1.5 rounded-full transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100 ${state.isDarkMode ? 'text-slate-400 hover:text-white hover:bg-slate-700' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-200'}"
+                                    title="Buscar imagem no Google"
+                                >
+                                    <i data-lucide="image" class="w-4 h-4"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    cell.innerHTML = content;
+                    rowDiv.appendChild(cell);
+                });
+                
+                // Action Cell (Add to Cart)
+                const actionCell = document.createElement('div');
+                actionCell.className = 'flex justify-center items-center px-2 py-3';
+                
+                const addBtn = document.createElement('button');
+                addBtn.className = `p-1.5 rounded-full transition-all ${
+                    isInCart 
+                    ? state.isDarkMode ? 'bg-green-900/40 text-green-400 cursor-default' : 'bg-green-100 text-green-600 cursor-default' 
+                    : state.isDarkMode ? 'bg-slate-800 text-slate-500 hover:bg-indigo-600 hover:text-white' : 'bg-slate-100 text-slate-400 hover:bg-indigo-600 hover:text-white'
+                }`;
+                addBtn.innerHTML = isInCart ? '<i data-lucide="check" class="w-4 h-4"></i>' : '<i data-lucide="plus" class="w-4 h-4"></i>';
+                addBtn.title = isInCart ? "Item já está na lista" : "Adicionar à lista";
+                if (!isInCart) {
+                    addBtn.onclick = function() { addToCart(originalIndex); };
+                }
+                actionCell.appendChild(addBtn);
+                rowDiv.appendChild(actionCell);
+
+                fragment.appendChild(rowDiv);
+            });
+            
+            elements.tableBody.appendChild(fragment);
+            
+            // Update counts
+            elements.resultsCount.textContent = `Mostrando ${itemsToShow.length} de ${state.filteredData.length} itens`;
+            
+            // Load More Button
+            if (state.visibleCount < state.filteredData.length) {
+                elements.loadMoreContainer.classList.remove('hidden');
+                document.getElementById('load-more-text').textContent = `Carregar mais itens (${state.filteredData.length - state.visibleCount} restantes)`;
+            } else {
+                elements.loadMoreContainer.classList.add('hidden');
+            }
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function handleSearch(e) {
+            state.searchTerm = e.target.value.toLowerCase();
+            state.visibleCount = ITEMS_PER_PAGE;
+            
+            if (state.searchTerm) {
+                elements.clearSearchBtn.classList.remove('hidden');
+            } else {
+                elements.clearSearchBtn.classList.add('hidden');
+            }
+            
+            if (!state.searchTerm) {
+                state.filteredData = state.data;
+            } else {
+                const normalizedTerm = normalize(state.searchTerm);
+                const parts = normalizedTerm.split(/\s+/).filter(p => p.length > 0);
+                const pattern = parts.join('.*');
+                const regex = new RegExp(pattern);
+
+                state.filteredData = state.data.filter(row => {
+                    // Search in description first
+                    if (state.columns.description) {
+                        const descVal = String(row[state.columns.description] || '');
+                        if (regex.test(normalize(descVal))) return true;
+                    }
+                    // Then other columns
+                    return Object.entries(row).some(([key, val]) => {
+                        if (key === state.columns.description) return false;
+                        return regex.test(normalize(String(val)));
+                    });
+                });
+            }
+            
+            renderTable();
+        }
+
+        function loadMore() {
+            state.visibleCount += ITEMS_PER_PAGE;
+            renderTable();
+        }
+
+        function handleZoom(delta) {
+            state.zoomLevel = Math.max(0.5, Math.min(1.5, state.zoomLevel + delta));
+            elements.zoomContainer.style.transform = `scale(${state.zoomLevel})`;
+            elements.zoomContainer.style.width = `${100 / state.zoomLevel}%`;
+            elements.zoomLevelDisplay.textContent = `${Math.round(state.zoomLevel * 100)}%`;
+        }
+
+        function handleCopy(text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text);
+            // Could add a toast here
+        }
+
+        // Modal & Cart Logic
+        function addToCart(originalIndex) {
+            const currentItem = state.data.find(row => row._originalIndex === originalIndex);
+            if (!currentItem) return;
+
+            const newItem = {
+                id: Math.random().toString(36).substr(2, 9),
+                originalRow: currentItem,
+                materialCode: state.columns.code ? String(currentItem[state.columns.code]) : 'N/A',
+                description: state.columns.description ? String(currentItem[state.columns.description]) : 'Item sem descrição',
+                quantity: 1, // Default quantity
+            };
+            state.cart.push(newItem);
+            localStorage.setItem('stockCart', JSON.stringify(state.cart));
+            updateCartUI();
+            renderTable(); // Re-render to show checkmark
+        }
+
+        function updateCartUI() {
+            // Badge
+            elements.cartCountBadge.textContent = state.cart.length;
+            elements.cartCountBadgeModal.textContent = state.cart.length;
+            
+            if (state.cart.length > 0) {
+                elements.floatingCartBtn.classList.remove('hidden');
+            } else {
+                elements.floatingCartBtn.classList.add('hidden');
+            }
+            
+            // Modal List
+            elements.cartItemsContainer.innerHTML = '';
+            
+            if (state.cart.length === 0) {
+                elements.cartItemsContainer.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i data-lucide="package" class="w-12 h-12 mx-auto mb-3 opacity-20"></i>
+                        <p>Sua lista está vazia.</p>
+                    </div>
+                `;
+                elements.clearCartBtn.disabled = true;
+                elements.copyCartBtn.disabled = true;
+            } else {
+                elements.clearCartBtn.disabled = false;
+                elements.copyCartBtn.disabled = false;
+                
+                state.cart.forEach((item, index) => {
+                    const el = document.createElement('div');
+                    el.className = `grid grid-cols-[auto,1fr,auto] items-start gap-3 border p-3 rounded-xl transition-colors group ${
+                        state.isDarkMode ? 'bg-slate-800 border-slate-700 hover:border-indigo-500' : 'bg-white border-slate-200 hover:border-indigo-200'
+                    }`;
+                    el.innerHTML = `
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                            state.isDarkMode ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-500'
+                        }">
+                            ${index + 1} 
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-sm truncate ${state.isDarkMode ? 'text-slate-200' : 'text-slate-800'}">${item.description}</p>
+                            <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                                <span class="font-mono px-1.5 rounded ${state.isDarkMode ? 'bg-slate-700 text-slate-300' : 'bg-slate-100'}">${item.materialCode}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative w-20">
+                                <input type="number" value="${item.quantity}" oninput="updateCartItemQuantity('${item.id}', this.value)" min="1" class="w-full text-center pr-2 py-1 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                            </div>
+                            <button onclick="removeFromCart('${item.id}')" class="text-slate-400 hover:text-red-500 p-2 transition-colors" title="Remover item">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    `;
+                    elements.cartItemsContainer.appendChild(el);
+                });
+            }
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function updateCartItemQuantity(id, quantity) {
+            const item = state.cart.find(i => i.id === id);
+            if (item) {
+                item.quantity = Number(quantity);
+                localStorage.setItem('stockCart', JSON.stringify(state.cart));
+            }
+        }
+
+        function removeFromCart(id) {
+            state.cart = state.cart.filter(item => item.id !== id);
+            localStorage.setItem('stockCart', JSON.stringify(state.cart));
+            updateCartUI();
+            renderTable();
+        }
+
+        function clearCart() {
+            if (confirm('Tem certeza que deseja limpar a lista?')) {
+                state.cart = [];
+                localStorage.removeItem('stockCart');
+                updateCartUI();
+                renderTable();
+            }
+        }
+
+        function copyCartToClipboard() {
+            const employee = elements.cartEmployee.value;
+            const type = elements.cartType.value;
+
+            if (!employee) { alert('Por favor, preencha o nome do funcionário.'); return; }
+            localStorage.setItem('stockEmployee', employee);
+
+            const text = state.cart.map(item => {
+                const row = item.originalRow;
+                let stockLocation = 'L01'; // Valor padrão conforme solicitado
+
+                // Encontra todos os valores de depósito para a linha do item
+                if (row) {
+                    const depValues = [];
+                    for (const header of state.headers) {
+                        // Verifica se o cabeçalho é uma coluna de 'depósito'
+                        if (normalize(header).includes('dep')) {
+                            const value = String(row[header] || '').toUpperCase();
+                            if (value) {
+                                depValues.push(value);
+                            }
+                        }
+                    }
+                    // Prioriza E99 se existir em qualquer uma das colunas de depósito para essa linha
+                    if (depValues.some(val => val.includes('E99'))) {
+                        stockLocation = 'E99';
+                    }
+                }
+
+                // Monta a string na ordem exata especificada para o SAP
+                const materialCode = item.materialCode || '';
+                const quantity = item.quantity || '';
+                const fixedCode = '0010'; // Código fixo no final
+
+                return `${materialCode}\t${quantity}\t${type}\t${stockLocation}\t${employee}\t${fixedCode}`;
+            }).join('\n');
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Lista copiada para a área de transferência! Pronto para colar no SAP.');
+            });
+        }
+
+        function openCart() {
+            elements.cartModal.classList.remove('hidden');
+            setTimeout(() => {
+                elements.cartModalContent.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        function closeCart() {
+            elements.cartModalContent.classList.add('translate-y-full');
+            setTimeout(() => {
+                elements.cartModal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Dark Mode
+        function toggleDarkMode() {
+            state.isDarkMode = !state.isDarkMode;
+            setDarkMode(state.isDarkMode);
+        }
+
+        function setDarkMode(isDark) {
+            state.isDarkMode = isDark;
+            if (isDark) {
+                elements.html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                elements.html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+            // Re-render table to apply dark mode classes to dynamic elements
+            if (state.data.length > 0) {
+                renderHeader();
+                renderTable();
+                updateCartUI();
+            }
+        }
+
+        // Global exposure
+        window.removeFromCart = removeFromCart;
+        window.updateCartItemQuantity = updateCartItemQuantity;
+    </script>
+</body>
+</html>
