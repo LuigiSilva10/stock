@@ -86,6 +86,11 @@
         </div>
 
         <nav class="flex-1 flex flex-col gap-4 w-full px-2">
+            <button id="sidebar-cart-btn" class="p-3 rounded-xl transition-all w-full flex justify-center hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 dark:hover:bg-slate-800 dark:text-slate-400 dark:hover:text-indigo-400 relative" title="Ver Lista">
+                <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                <span id="sidebar-cart-badge" class="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full hidden"></span>
+            </button>
+
             <div class="flex flex-col gap-2 items-center w-full p-2 rounded-xl bg-opacity-50">
                 <button id="zoom-in" class="p-3 rounded-xl transition-all w-full flex justify-center hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 dark:hover:bg-slate-800 dark:text-slate-400 dark:hover:text-indigo-400" title="Aumentar Zoom">
                     <i data-lucide="zoom-in" class="w-5 h-5"></i>
@@ -231,11 +236,11 @@
     </div>
 
     <!-- Floating Cart Button -->
-    <div id="floating-cart-btn" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-30 px-6 py-3 rounded-full shadow-xl flex items-center gap-4 cursor-pointer transition-all duration-300 bg-slate-900 text-white hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500">
+    <div id="floating-cart-btn" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-30 px-6 py-3 rounded-full shadow-xl flex items-center gap-4 cursor-pointer transition-colors bg-slate-900 text-white hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500">
         <div class="rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold bg-indigo-500 text-white dark:bg-white dark:text-indigo-600" id="cart-count-badge">0</div>
-        <span id="cart-btn-text" class="font-medium transition-all">Itens na lista</span>
+        <span class="font-medium">Itens na lista</span>
         <div class="h-4 w-px bg-slate-700 dark:bg-indigo-400"></div>
-        <span id="cart-btn-subtext" class="text-sm flex items-center gap-2 text-slate-300 dark:text-indigo-100 transition-all">
+        <span class="text-sm flex items-center gap-2 text-slate-300 dark:text-indigo-100">
             Ver lista <i data-lucide="clipboard-list" class="w-4 h-4"></i>
         </span>
     </div>
@@ -243,7 +248,7 @@
     <!-- Cart Modal (Centered) -->
     <div id="cart-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/50 backdrop-blur-sm">
         <div class="rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 transform transition-transform duration-300 translate-y-full sm:translate-y-0" id="cart-modal-content">
-            <div class="p-4 border-b flex items-center justify-between flex-shrink-0 rounded-t-2xl bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+            <div class="p-4 border-b flex items-center justify-between rounded-t-2xl bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                 <div class="flex items-center gap-2">
                     <i data-lucide="clipboard-list" class="w-5 h-5 text-indigo-600"></i>
                     <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Lista de Materiais</h2>
@@ -254,38 +259,126 @@
                 </button>
             </div>
 
-            <div class="flex-1 flex flex-col overflow-hidden">
-                <!-- Global settings -->
-                <div class="p-4 grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+            <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- Cart Items injected via JS -->
+            </div>
+
+            <!-- Bulk Actions (Advanced Mode) -->
+            <div id="bulk-actions-container" class="hidden p-4 bg-indigo-50 border-t border-indigo-100 dark:bg-slate-800 dark:border-slate-700 space-y-4">
+                
+                <!-- Order Number & Automation -->
+                <div class="bg-white dark:bg-slate-900 p-3 rounded-lg border border-indigo-100 dark:border-slate-700 shadow-sm">
+                    <label class="text-xs font-bold uppercase text-indigo-600 dark:text-indigo-400 mb-2 block flex items-center gap-2">
+                        <i data-lucide="bot" class="w-4 h-4"></i> Automação SAP (IW32)
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="order-number" placeholder="Nº da Ordem (Ex: 100200300)" class="flex-1 pl-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-800 dark:border-slate-600 font-mono">
+                        <button id="btn-download-script" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors" title="Baixar Robô de Automação (.vbs)">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1 leading-tight">
+                        Preencha a ordem e baixe o script para lançar automaticamente no SAP.
+                    </p>
+                </div>
+
+                <div class="border-t border-indigo-100 dark:border-slate-700 my-2"></div>
+
+                <p class="text-xs font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                    <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Edição em Massa
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="relative">
+                        <input type="text" id="bulk-employee" placeholder="Recebedor (Todos)" class="w-full pl-3 pr-8 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-900 dark:border-slate-600">
+                        <button id="btn-bulk-employee" class="absolute right-1 top-1 bottom-1 px-2 text-indigo-600 hover:bg-indigo-100 rounded transition-colors" title="Aplicar a todos">
+                            <i data-lucide="check" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="bulk-depot" placeholder="Depósito (Todos)" class="w-full pl-3 pr-8 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-900 dark:border-slate-600">
+                        <button id="btn-bulk-depot" class="absolute right-1 top-1 bottom-1 px-2 text-indigo-600 hover:bg-indigo-100 rounded transition-colors" title="Aplicar a todos">
+                            <i data-lucide="check" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="bulk-type" placeholder="Tipo (Todos)" class="w-full pl-3 pr-8 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:bg-slate-900 dark:border-slate-600">
+                        <button id="btn-bulk-type" class="absolute right-1 top-1 bottom-1 px-2 text-indigo-600 hover:bg-indigo-100 rounded transition-colors" title="Aplicar a todos">
+                            <i data-lucide="check" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t rounded-b-2xl flex gap-3 bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                <button id="clear-cart-btn" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Limpar
+                </button>
+                <button id="copy-cart-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i data-lucide="copy" class="w-4 h-4"></i> Copiar para SAP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="add-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="rounded-2xl shadow-2xl w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 transform transition-all scale-100 opacity-100">
+            <div class="bg-indigo-600 px-6 py-4 flex items-center justify-between">
+                <h3 id="modal-title" class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="plus" class="w-5 h-5"></i> Adicionar à Lista
+                </h3>
+                <button id="close-modal-btn" class="text-white/80 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form id="add-item-form" class="p-6 space-y-4">
+                <div class="p-3 rounded-lg border bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                    <p class="text-xs text-slate-400 uppercase font-bold mb-1">Item Selecionado</p>
+                    <p id="modal-item-desc" class="font-medium line-clamp-2 text-slate-800 dark:text-slate-200">Descrição do Item</p>
+                    <p id="modal-item-code" class="text-xs text-slate-500 mt-1 font-mono">CODE123</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Funcionário</label>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Quantidade</label>
                         <div class="relative">
-                            <i data-lucide="user" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="cart-employee" required class="w-full pl-9 pr-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="Nome do solicitante">
+                            <i data-lucide="hash" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                            <input type="number" id="modal-qty" required class="w-full pl-9 pr-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="0">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Tipo (SAP)</label>
                         <div class="relative">
                             <i data-lucide="tag" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="cart-type" class="w-full pl-9 pr-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value="L">
+                            <input type="text" id="modal-type" class="w-full pl-9 pr-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value="L">
                         </div>
                     </div>
                 </div>
 
-                <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3">
-                    <!-- Cart Items injected via JS -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Depósito</label>
+                        <div class="relative">
+                            <i data-lucide="warehouse" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                            <input type="text" id="modal-depot" class="w-full pl-9 pr-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value="E99">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Recebedor</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                            <input type="text" id="modal-employee" required class="w-full pl-9 pr-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="Nome">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="p-4 border-t rounded-b-2xl flex gap-3 bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700 flex-shrink-0">
-                    <button id="clear-cart-btn" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        Limpar
-                    </button>
-                    <button id="copy-cart-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i data-lucide="copy" class="w-4 h-4"></i> Copiar para SAP
+                <div class="pt-2">
+                    <button type="submit" id="modal-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-indigo-200">
+                        <i data-lucide="save" class="w-4 h-4"></i> Salvar na Lista
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -300,6 +393,8 @@
             searchTerm: '',
             visibleCount: 50,
             zoomLevel: 1,
+            pendingItem: null,
+            editingId: null,
             fileName: '',
             sheetName: '',
             columns: {
@@ -350,11 +445,11 @@
                 footer: document.getElementById('footer'),
                 year: document.getElementById('year'),
                 mainContainer: document.getElementById('main-container'),
-
+                
                 // Cart Elements
+                sidebarCartBtn: document.getElementById('sidebar-cart-btn'),
+                sidebarCartBadge: document.getElementById('sidebar-cart-badge'),
                 floatingCartBtn: document.getElementById('floating-cart-btn'),
-                cartBtnText: document.getElementById('cart-btn-text'),
-                cartBtnSubtext: document.getElementById('cart-btn-subtext'),
                 cartCountBadge: document.getElementById('cart-count-badge'),
                 cartCountBadgeModal: document.getElementById('cart-count-badge-modal'),
                 cartModal: document.getElementById('cart-modal'),
@@ -363,9 +458,33 @@
                 cartItemsContainer: document.getElementById('cart-items-container'),
                 clearCartBtn: document.getElementById('clear-cart-btn'),
                 copyCartBtn: document.getElementById('copy-cart-btn'),
-                cartEmployee: document.getElementById('cart-employee'),
-                cartType: document.getElementById('cart-type'),
-
+                
+                // Bulk Actions
+                bulkActionsContainer: document.getElementById('bulk-actions-container'),
+                bulkEmployeeInput: document.getElementById('bulk-employee'),
+                btnBulkEmployee: document.getElementById('btn-bulk-employee'),
+                bulkDepotInput: document.getElementById('bulk-depot'),
+                btnBulkDepot: document.getElementById('btn-bulk-depot'),
+                bulkTypeInput: document.getElementById('bulk-type'),
+                btnBulkType: document.getElementById('btn-bulk-type'),
+                
+                // SAP Automation
+                orderNumberInput: document.getElementById('order-number'),
+                btnDownloadScript: document.getElementById('btn-download-script'),
+                
+                // Modal Elements
+                addModal: document.getElementById('add-modal'),
+                modalTitle: document.getElementById('modal-title'),
+                modalSubmitBtn: document.getElementById('modal-submit-btn'),
+                closeModalBtn: document.getElementById('close-modal-btn'),
+                addItemForm: document.getElementById('add-item-form'),
+                modalItemDesc: document.getElementById('modal-item-desc'),
+                modalItemCode: document.getElementById('modal-item-code'),
+                modalQty: document.getElementById('modal-qty'),
+                modalType: document.getElementById('modal-type'),
+                modalDepot: document.getElementById('modal-depot'),
+                modalEmployee: document.getElementById('modal-employee'),
+                
                 // Loading/Error
                 uploadIcon: document.getElementById('upload-icon'),
                 loadingIcon: document.getElementById('loading-icon'),
@@ -398,12 +517,7 @@
                     updateCartUI();
                 } catch (e) {
                     console.error('Erro ao carregar carrinho:', e);
-                    localStorage.removeItem('stockCart');
                 }
-            }
-            const savedEmployee = localStorage.getItem('stockEmployee');
-            if (savedEmployee && elements.cartEmployee) {
-                elements.cartEmployee.value = savedEmployee;
             }
 
             setupEventListeners();
@@ -454,14 +568,30 @@
             if (elements.loadMoreBtn) elements.loadMoreBtn.addEventListener('click', loadMore);
             
             // Cart
-            if (elements.floatingCartBtn) elements.floatingCartBtn.addEventListener('click', openCart);
+            if (elements.sidebarCartBtn) elements.sidebarCartBtn.addEventListener('click', () => openCart('advanced'));
+            if (elements.floatingCartBtn) elements.floatingCartBtn.addEventListener('click', () => openCart('simple'));
             if (elements.closeCartBtn) elements.closeCartBtn.addEventListener('click', closeCart);
             if (elements.cartModal) elements.cartModal.addEventListener('click', (e) => {
                 if (e.target === elements.cartModal) closeCart();
             });
             if (elements.clearCartBtn) elements.clearCartBtn.addEventListener('click', clearCart);
             if (elements.copyCartBtn) elements.copyCartBtn.addEventListener('click', copyCartToClipboard);
-
+            
+            // Bulk Actions Listeners
+            if (elements.btnBulkEmployee) elements.btnBulkEmployee.addEventListener('click', () => applyBulkUpdate('employee', elements.bulkEmployeeInput.value));
+            if (elements.btnBulkDepot) elements.btnBulkDepot.addEventListener('click', () => applyBulkUpdate('depot', elements.bulkDepotInput.value));
+            if (elements.btnBulkType) elements.btnBulkType.addEventListener('click', () => applyBulkUpdate('type', elements.bulkTypeInput.value));
+            
+            // SAP Automation
+            if (elements.btnDownloadScript) elements.btnDownloadScript.addEventListener('click', downloadSapScript);
+            
+            // Modal
+            if (elements.closeModalBtn) elements.closeModalBtn.addEventListener('click', closeModal);
+            if (elements.addModal) elements.addModal.addEventListener('click', (e) => {
+                if (e.target === elements.addModal) closeModal();
+            });
+            if (elements.addItemForm) elements.addItemForm.addEventListener('submit', handleAddItem);
+            
             // Keyboard Shortcuts
             document.addEventListener('keydown', (e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -469,6 +599,7 @@
                     if (elements.searchInput) elements.searchInput.focus();
                 }
                 if (e.key === 'Escape') {
+                    closeModal();
                     closeCart();
                 }
             });
@@ -602,8 +733,8 @@
                 return getScore(ka) - getScore(kb);
             });
 
-            state.headers = cols; 
-            state.data = jsonData.map((row, index) => ({ ...row, _originalIndex: index }));
+            state.headers = cols;
+            state.data = jsonData;
             state.filteredData = jsonData;
             
             // Smart Column Detection
@@ -616,6 +747,11 @@
                 const n = normalize(h);
                 return n.includes('material') || n.includes('cod');
             }) || cols[0];
+
+            state.columns.depot = cols.find(h => {
+                const n = normalize(h);
+                return n.includes('dep') || n.includes('deposito');
+            });
             
             // UI Updates
             elements.uploadArea.classList.add('hidden');
@@ -688,6 +824,12 @@
         function renderHeader() {
             elements.tableHeader.innerHTML = '';
             
+            // Action Column
+            const actionTh = document.createElement('div');
+            actionTh.className = 'px-4 py-4 border-r border-transparent flex justify-center items-center';
+            actionTh.innerHTML = '<span class="sr-only">Ações</span>';
+            elements.tableHeader.appendChild(actionTh);
+
             // Data Columns
             state.headers.forEach(header => {
                 const th = document.createElement('div');
@@ -713,16 +855,10 @@
                 elements.tableHeader.appendChild(th);
             });
 
-            // Action Column
-            const actionTh = document.createElement('div');
-            actionTh.className = 'px-4 py-4 border-r border-transparent flex justify-center items-center';
-            actionTh.innerHTML = '<span class="sr-only">Ações</span>';
-            elements.tableHeader.appendChild(actionTh);
-
             // Set Grid Template Columns
-            const gridTemplate = `${state.headers.map(h => 
+            const gridTemplate = `48px ${state.headers.map(h => 
                 h === state.columns.description ? 'minmax(0, 3fr)' : 'minmax(0, 1fr)'
-            ).join(' ')} 60px`;
+            ).join(' ')}`;
             
             elements.tableHeader.style.gridTemplateColumns = gridTemplate;
             elements.tableBody.style.display = 'grid';
@@ -733,54 +869,69 @@
             const itemsToShow = state.filteredData.slice(0, state.visibleCount);
             
             // Grid Template for Rows
-            const gridTemplate = `${state.headers.map(h => 
+            const gridTemplate = `48px ${state.headers.map(h => 
                 h === state.columns.description ? 'minmax(0, 3fr)' : 'minmax(0, 1fr)'
-            ).join(' ')} 60px`;
+            ).join(' ')}`;
             
             elements.tableBody.innerHTML = '';
             
             itemsToShow.forEach((row, index) => {
-                const originalIndex = row._originalIndex;
                 const rowDiv = document.createElement('div');
                 const isCode = state.columns.code && row[state.columns.code];
                 const isInCart = isCode && state.cart.some(item => item.materialCode === String(row[state.columns.code]));
-
+                
                 rowDiv.className = `
                     border-b transition-colors group items-center
-                    ${state.isDarkMode ? 'border-slate-800' : 'border-slate-100'}
+                    ${state.isDarkMode ? 'border-slate-800 hover:bg-slate-800/60 even:bg-slate-900/40' : 'border-slate-100 hover:bg-slate-50 even:bg-slate-50/50'}
                     ${isInCart 
-                        ? (state.isDarkMode ? 'bg-green-900/20' : 'bg-green-50/60')
-                        : (state.isDarkMode ? 'hover:bg-slate-800/60 even:bg-slate-900/40' : 'hover:bg-slate-50 even:bg-slate-50/50')
-                    }
+                        ? state.isDarkMode ? 'bg-green-900/20 hover:bg-green-900/30' : 'bg-green-50/60 hover:bg-green-100/60' 
+                        : ''}
                 `;
                 rowDiv.style.display = 'grid';
                 rowDiv.style.gridTemplateColumns = gridTemplate;
+                
+                // Action Cell (Add to Cart)
+                const actionCell = document.createElement('div');
+                actionCell.className = 'flex justify-center px-2 py-3';
+                
+                const addBtn = document.createElement('button');
+                addBtn.className = `p-1.5 rounded-full transition-all ${
+                    isInCart 
+                    ? state.isDarkMode ? 'bg-green-900/40 text-green-400' : 'bg-green-100 text-green-600' 
+                    : state.isDarkMode ? 'bg-slate-800 text-slate-500 hover:bg-indigo-600 hover:text-white' : 'bg-slate-100 text-slate-400 hover:bg-indigo-600 hover:text-white'
+                }`;
+                addBtn.innerHTML = isInCart ? '<i data-lucide="check" class="w-4 h-4"></i>' : '<i data-lucide="plus" class="w-4 h-4"></i>';
+                addBtn.title = isInCart ? "Item já adicionado" : "Adicionar à lista";
+                addBtn.onclick = function() { openModal(row); };
+                
+                actionCell.appendChild(addBtn);
+                rowDiv.appendChild(actionCell);
                 
                 // Data Cells
                 state.headers.forEach(header => {
                     const cell = document.createElement('div');
                     const value = String(row[header] || '');
                     const isMain = header === state.columns.description;
-                    const nHeader = normalize(header);
-                    const isDep = nHeader.includes('dep');
-                    const isE99 = isDep && value.toUpperCase().includes('E99');
+                    const isDep = normalize(header).includes('dep');
+                    const isE99 = isDep && String(value).toUpperCase().includes('e99');
                     
                     cell.className = `
                         px-6 py-3 cursor-pointer select-none flex items-center
-                        ${isMain ? 'whitespace-normal' : 'whitespace-nowrap'}
+                        ${isMain ? 'whitespace-normal' : 'whitespace-nowrap overflow-hidden text-ellipsis'}
                         border-r border-transparent
                         ${isMain 
                             ? state.isDarkMode ? 'font-medium text-slate-200 bg-indigo-900/10 group-hover:bg-indigo-900/20' : 'font-medium text-slate-900 bg-indigo-50/10 group-hover:bg-indigo-50/30' 
                             : ''}
                         ${isE99 
-                            ? (state.isDarkMode ? 'bg-green-800 text-green-100 font-semibold' : 'bg-green-200 text-green-900 font-semibold')
+                            ? 'bg-emerald-500 text-white font-bold shadow-sm rounded-md mx-1 px-4' 
                             : ''}
                     `;
                     cell.title = "Clique para copiar";
-                    cell.onclick = (e) => { e.stopPropagation(); handleCopy(value); };
+                    cell.onclick = () => handleCopy(value);
 
                     // Formatter
                     let displayValue = value;
+                    const nHeader = normalize(header);
                     if (nHeader.includes('utilizacao') || nHeader.includes('valor') || nHeader.includes('preco')) {
                         displayValue = formatNumber(value);
                     }
@@ -793,7 +944,7 @@
 
                     let content = `
                         <div class="flex items-center justify-between gap-2 w-full ${isMain ? '' : 'overflow-hidden'}">
-                            <span class="truncate">${displayValue}</span>
+                            <span class="${isMain ? '' : 'truncate'}">${displayValue}</span>
                             ${isMain ? `
                                 <button
                                     onclick="event.stopPropagation(); window.open('https://www.google.com/search?tbm=isch&q=${encodeURIComponent(value)}', '_blank')"
@@ -810,24 +961,6 @@
                     rowDiv.appendChild(cell);
                 });
                 
-                // Action Cell (Add to Cart)
-                const actionCell = document.createElement('div');
-                actionCell.className = 'flex justify-center items-center px-2 py-3';
-                
-                const addBtn = document.createElement('button');
-                addBtn.className = `p-1.5 rounded-full transition-all ${
-                    isInCart 
-                    ? state.isDarkMode ? 'bg-green-900/40 text-green-400 cursor-default' : 'bg-green-100 text-green-600 cursor-default' 
-                    : state.isDarkMode ? 'bg-slate-800 text-slate-500 hover:bg-indigo-600 hover:text-white' : 'bg-slate-100 text-slate-400 hover:bg-indigo-600 hover:text-white'
-                }`;
-                addBtn.innerHTML = isInCart ? '<i data-lucide="check" class="w-4 h-4"></i>' : '<i data-lucide="plus" class="w-4 h-4"></i>';
-                addBtn.title = isInCart ? "Item já está na lista" : "Adicionar à lista";
-                if (!isInCart) {
-                    addBtn.onclick = function() { addToCart(originalIndex); };
-                }
-                actionCell.appendChild(addBtn);
-                rowDiv.appendChild(actionCell);
-
                 fragment.appendChild(rowDiv);
             });
             
@@ -901,29 +1034,116 @@
         }
 
         // Modal & Cart Logic
-        function addToCart(originalIndex) {
-            const currentItem = state.data.find(row => row._originalIndex === originalIndex);
-            if (!currentItem) return;
+        function openModal(row) {
+            state.pendingItem = row;
+            state.editingId = null;
+            
+            // Reset UI text
+            if (elements.modalTitle) elements.modalTitle.innerHTML = '<i data-lucide="plus" class="w-5 h-5"></i> Adicionar à Lista';
+            if (elements.modalSubmitBtn) elements.modalSubmitBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Salvar na Lista';
+            
+            // Populate Modal
+            elements.modalItemDesc.textContent = state.columns.description ? row[state.columns.description] : 'Item sem descrição';
+            elements.modalItemCode.textContent = state.columns.code ? row[state.columns.code] : '';
+            elements.modalQty.value = '';
 
-            const newItem = {
-                id: Math.random().toString(36).substr(2, 9),
-                originalRow: currentItem,
-                materialCode: state.columns.code ? String(currentItem[state.columns.code]) : 'N/A',
-                description: state.columns.description ? String(currentItem[state.columns.description]) : 'Item sem descrição',
-                quantity: 1, // Default quantity
-            };
-            state.cart.push(newItem);
-            localStorage.setItem('stockCart', JSON.stringify(state.cart));
-            updateCartUI();
-            renderTable(); // Re-render to show checkmark
+            if (state.columns.depot && row[state.columns.depot]) {
+                elements.modalDepot.value = row[state.columns.depot];
+            } else {
+                elements.modalDepot.value = 'E99';
+            }
+            
+            elements.addModal.classList.remove('hidden');
+            setTimeout(() => elements.modalQty.focus(), 100);
+        }
+
+        function closeModal() {
+            elements.addModal.classList.add('hidden');
+            state.pendingItem = null;
+            state.editingId = null;
+        }
+
+        function handleAddItem(e) {
+            e.preventDefault();
+            
+            if (state.editingId) {
+                // Update existing item
+                const index = state.cart.findIndex(item => item.id === state.editingId);
+                if (index !== -1) {
+                    state.cart[index] = {
+                        ...state.cart[index],
+                        quantity: elements.modalQty.value,
+                        type: elements.modalType.value,
+                        depot: elements.modalDepot.value,
+                        employee: elements.modalEmployee.value
+                    };
+                    localStorage.setItem('stockCart', JSON.stringify(state.cart));
+                    updateCartUI();
+                    closeModal();
+                }
+            } else {
+                // Add new item
+                if (!state.pendingItem) return;
+                
+                const newItem = {
+                    id: Math.random().toString(36).substr(2, 9),
+                    originalRow: state.pendingItem,
+                    materialCode: state.columns.code ? String(state.pendingItem[state.columns.code]) : 'N/A',
+                    description: state.columns.description ? String(state.pendingItem[state.columns.description]) : 'Item sem descrição',
+                    quantity: elements.modalQty.value,
+                    type: elements.modalType.value,
+                    depot: elements.modalDepot.value,
+                    employee: elements.modalEmployee.value
+                };
+                
+                state.cart.push(newItem);
+                localStorage.setItem('stockCart', JSON.stringify(state.cart));
+                
+                updateCartUI();
+                closeModal();
+                renderTable(); // To update checkmarks
+            }
+        }
+
+        function editCartItem(id) {
+            const item = state.cart.find(i => i.id === id);
+            if (!item) return;
+
+            state.editingId = id;
+            state.pendingItem = item.originalRow;
+
+            // Populate fields
+            elements.modalItemDesc.textContent = item.description;
+            elements.modalItemCode.textContent = item.materialCode;
+            elements.modalQty.value = item.quantity;
+            elements.modalType.value = item.type;
+            elements.modalDepot.value = item.depot;
+            elements.modalEmployee.value = item.employee;
+
+            // Update UI text
+            if (elements.modalTitle) elements.modalTitle.innerHTML = '<i data-lucide="pencil" class="w-5 h-5"></i> Editar Item';
+            if (elements.modalSubmitBtn) elements.modalSubmitBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Atualizar Item';
+
+            elements.addModal.classList.remove('hidden');
+            setTimeout(() => elements.modalQty.focus(), 100);
         }
 
         function updateCartUI() {
             // Badge
-            elements.cartCountBadge.textContent = state.cart.length;
-            elements.cartCountBadgeModal.textContent = state.cart.length;
+            const count = state.cart.length;
+            elements.cartCountBadge.textContent = count;
+            elements.cartCountBadgeModal.textContent = count;
             
-            if (state.cart.length > 0) {
+            // Sidebar Badge
+            if (elements.sidebarCartBadge) {
+                if (count > 0) {
+                    elements.sidebarCartBadge.classList.remove('hidden');
+                } else {
+                    elements.sidebarCartBadge.classList.add('hidden');
+                }
+            }
+            
+            if (count > 0) {
                 elements.floatingCartBtn.classList.remove('hidden');
             } else {
                 elements.floatingCartBtn.classList.add('hidden');
@@ -932,7 +1152,7 @@
             // Modal List
             elements.cartItemsContainer.innerHTML = '';
             
-            if (state.cart.length === 0) {
+            if (count === 0) {
                 elements.cartItemsContainer.innerHTML = `
                     <div class="text-center py-12 text-slate-400">
                         <i data-lucide="package" class="w-12 h-12 mx-auto mb-3 opacity-20"></i>
@@ -947,26 +1167,30 @@
                 
                 state.cart.forEach((item, index) => {
                     const el = document.createElement('div');
-                    el.className = `grid grid-cols-[auto,1fr,auto] items-start gap-3 border p-3 rounded-xl transition-colors group ${
+                    el.className = `flex items-start gap-3 border p-3 rounded-xl transition-colors group ${
                         state.isDarkMode ? 'bg-slate-800 border-slate-700 hover:border-indigo-500' : 'bg-white border-slate-200 hover:border-indigo-200'
                     }`;
                     el.innerHTML = `
                         <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                             state.isDarkMode ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-500'
                         }">
-                            ${index + 1} 
+                            ${index + 1}
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="font-medium text-sm truncate ${state.isDarkMode ? 'text-slate-200' : 'text-slate-800'}">${item.description}</p>
                             <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
                                 <span class="font-mono px-1.5 rounded ${state.isDarkMode ? 'bg-slate-700 text-slate-300' : 'bg-slate-100'}">${item.materialCode}</span>
+                                <span class="flex items-center gap-1"><i data-lucide="hash" class="w-3 h-3"></i> ${item.quantity}</span>
+                                <span class="flex items-center gap-1"><i data-lucide="tag" class="w-3 h-3"></i> ${item.type}</span>
+                                <span class="flex items-center gap-1"><i data-lucide="warehouse" class="w-3 h-3"></i> ${item.depot || 'E99'}</span>
+                                <span class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${item.employee}</span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="relative w-20">
-                                <input type="number" value="${item.quantity}" oninput="updateCartItemQuantity('${item.id}', this.value)" min="1" class="w-full text-center pr-2 py-1 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white border-slate-300 text-slate-900 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
-                            </div>
-                            <button onclick="removeFromCart('${item.id}')" class="text-slate-400 hover:text-red-500 p-2 transition-colors" title="Remover item">
+                        <div class="flex flex-col gap-1">
+                            <button onclick="editCartItem('${item.id}')" class="text-slate-300 hover:text-indigo-500 p-2 transition-colors" title="Editar item">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="removeFromCart('${item.id}')" class="text-slate-300 hover:text-red-500 p-2 transition-colors" title="Remover item">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -976,14 +1200,6 @@
             }
             
             if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        function updateCartItemQuantity(id, quantity) {
-            const item = state.cart.find(i => i.id === id);
-            if (item) {
-                item.quantity = Number(quantity);
-                localStorage.setItem('stockCart', JSON.stringify(state.cart));
-            }
         }
 
         function removeFromCart(id) {
@@ -1002,50 +1218,34 @@
             }
         }
 
-        function copyCartToClipboard() {
-            const employee = elements.cartEmployee.value;
-            const type = elements.cartType.value;
+        function copyCartToClipboard(silent = false) {
+            if (state.cart.length === 0) return Promise.resolve();
 
-            if (!employee) { alert('Por favor, preencha o nome do funcionário.'); return; }
-            localStorage.setItem('stockEmployee', employee);
-
-            const text = state.cart.map(item => {
-                const row = item.originalRow;
-                let stockLocation = 'L01'; // Valor padrão conforme solicitado
-
-                // Encontra todos os valores de depósito para a linha do item
-                if (row) {
-                    const depValues = [];
-                    for (const header of state.headers) {
-                        // Verifica se o cabeçalho é uma coluna de 'depósito'
-                        if (normalize(header).includes('dep')) {
-                            const value = String(row[header] || '').toUpperCase();
-                            if (value) {
-                                depValues.push(value);
-                            }
-                        }
-                    }
-                    // Prioriza E99 se existir em qualquer uma das colunas de depósito para essa linha
-                    if (depValues.some(val => val.includes('E99'))) {
-                        stockLocation = 'E99';
-                    }
-                }
-
-                // Monta a string na ordem exata especificada para o SAP
-                const materialCode = item.materialCode || '';
-                const quantity = item.quantity || '';
-                const fixedCode = '0010'; // Código fixo no final
-
-                return `${materialCode}\t${quantity}\t${type}\t${stockLocation}\t${employee}\t${fixedCode}`;
-            }).join('\n');
+            // SAP usually requires CRLF (\r\n) for multi-line pasting on Windows
+            const text = state.cart.map(item => 
+                `${item.materialCode}\t\t${item.quantity}\t\t${item.type}\t\t${item.depot || 'E99'}\t\t\t\t\t${item.employee}`
+            ).join('\r\n');
             
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Lista copiada para a área de transferência! Pronto para colar no SAP.');
+            return navigator.clipboard.writeText(text).then(() => {
+                if (!silent) {
+                    alert(`${state.cart.length} itens copiados para a área de transferência!\n\nDICA PARA O SAP:\n1. Certifique-se de que há linhas vazias suficientes na tabela do SAP.\n2. Clique apenas UMA VEZ na primeira célula de destino (ficar selecionada, não com cursor piscando).\n3. Se o Ctrl+V não funcionar, procure o botão "Colar da Área de Transferência" na barra de ferramentas da tabela.`);
+                }
             });
         }
 
-        function openCart() {
+        function openCart(mode = 'simple') {
+            updateCartUI();
             elements.cartModal.classList.remove('hidden');
+            
+            // Handle Advanced Mode (Sidebar)
+            if (mode === 'advanced') {
+                if (elements.bulkActionsContainer) elements.bulkActionsContainer.classList.remove('hidden');
+                elements.cartModalContent.classList.add('border-indigo-500', 'border-2');
+            } else {
+                if (elements.bulkActionsContainer) elements.bulkActionsContainer.classList.add('hidden');
+                elements.cartModalContent.classList.remove('border-indigo-500', 'border-2');
+            }
+
             setTimeout(() => {
                 elements.cartModalContent.classList.remove('translate-y-full');
             }, 10);
@@ -1056,6 +1256,31 @@
             setTimeout(() => {
                 elements.cartModal.classList.add('hidden');
             }, 300);
+        }
+
+        function applyBulkUpdate(field, value) {
+            if (!value) return;
+            
+            let fieldName = field;
+            if (field === 'employee') fieldName = 'RECEBEDOR';
+            if (field === 'depot') fieldName = 'DEPÓSITO';
+            if (field === 'type') fieldName = 'TIPO';
+
+            if (confirm(`Deseja aplicar "${value}" para ${fieldName} em TODOS os itens da lista?`)) {
+                state.cart = state.cart.map(item => ({
+                    ...item,
+                    [field]: value
+                }));
+                localStorage.setItem('stockCart', JSON.stringify(state.cart));
+                updateCartUI();
+                
+                // Clear input
+                if (field === 'employee' && elements.bulkEmployeeInput) elements.bulkEmployeeInput.value = '';
+                if (field === 'depot' && elements.bulkDepotInput) elements.bulkDepotInput.value = '';
+                if (field === 'type' && elements.bulkTypeInput) elements.bulkTypeInput.value = '';
+                
+                alert('Itens atualizados com sucesso!');
+            }
         }
 
         // Dark Mode
@@ -1081,9 +1306,93 @@
             }
         }
 
+        function downloadSapScript() {
+            const order = elements.orderNumberInput.value.trim();
+            if (!order) {
+                alert('Por favor, digite o número da ordem SAP (IW32) antes de baixar o script.');
+                elements.orderNumberInput.focus();
+                return;
+            }
+
+            if (state.cart.length === 0) {
+                alert('Sua lista está vazia. Adicione itens antes de gerar o script.');
+                return;
+            }
+
+            // Copy data to clipboard first (as fallback/primary method for the script)
+            copyCartToClipboard(true).then(() => {
+                // VBScript Content
+                const vbsContent = `
+If Not IsObject(application) Then
+   Set SapGuiAuto  = GetObject("SAPGUI")
+   Set application = SapGuiAuto.GetScriptingEngine
+End If
+If Not IsObject(connection) Then
+   Set connection = application.Children(0)
+End If
+If Not IsObject(session) Then
+   Set session    = connection.Children(0)
+End If
+If IsObject(WScript) Then
+   WScript.ConnectObject session,     "on"
+   WScript.ConnectObject application, "on"
+End If
+
+' Maximizar janela
+session.findById("wnd[0]").maximize
+
+' Entrar na transação IW32
+session.findById("wnd[0]/tbar[0]/okcd").text = "/nIW32"
+session.findById("wnd[0]").sendVKey 0
+
+' Digitar Ordem
+session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").text = "${order}"
+session.findById("wnd[0]").sendVKey 0
+
+' Tentar navegar para aba Componentes (ID padrão PLUE)
+On Error Resume Next
+session.findById("wnd[0]/usr/tabsTABSTRIP_0115/tabpPLUE").select
+If Err.Number <> 0 Then
+    Err.Clear
+End If
+On Error GoTo 0
+
+' Focar na grid de componentes (ID padrão)
+On Error Resume Next
+session.findById("wnd[0]/usr/tabsTABSTRIP_0115/tabpPLUE/ssubSUBSCR_0115:SAPLCOVG:0120/tblSAPLCOVGTCTRL_0120").getAbsoluteRow(0).getComponent(0).setFocus
+
+If Err.Number <> 0 Then
+    ' Se não achar a grid pelo ID, avisa o usuário
+    MsgBox "O script não encontrou a tabela de componentes automaticamente. Por favor, clique na primeira célula vazia da tabela e depois cole (Ctrl+V).", vbExclamation
+Else
+    ' Se achou a grid, tenta colar usando SendKeys (Ctrl+V)
+    Set WshShell = CreateObject("WScript.Shell")
+    WScript.Sleep 500
+    WshShell.SendKeys "^v"
+End If
+On Error GoTo 0
+`;
+
+                // Create and download file
+                const blob = new Blob([vbsContent], { type: 'text/vbs;charset=utf-8;' });
+                const link = document.createElement('a');
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `sap_iw32_${order}.vbs`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    alert('Script de automação baixado!\\n\\nINSTRUÇÕES:\\n1. O conteúdo da lista já foi copiado para sua área de transferência.\\n2. Execute o arquivo .vbs baixado.\\n3. Ele abrirá a IW32 e tentará colar os dados.\\n4. Se ele não colar automaticamente, clique na tabela e aperte Ctrl+V.');
+                }
+            });
+        }
+
         // Global exposure
         window.removeFromCart = removeFromCart;
-        window.updateCartItemQuantity = updateCartItemQuantity;
+        window.editCartItem = editCartItem;
     </script>
 </body>
 </html>
