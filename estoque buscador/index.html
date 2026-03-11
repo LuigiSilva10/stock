@@ -83,6 +83,14 @@
           margin: 0;
         }
 
+        .image-search-highlight {
+            background-color: rgba(252, 211, 77, 0.3) !important; /* bg-amber-300/30 */
+        }
+        .dark .image-search-highlight {
+            background-color: rgba(252, 211, 77, 0.2) !important; /* Lighter for dark mode */
+        }
+
+
     </style>
 </head>
 <body class="h-full font-sans transition-colors duration-300 bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 overflow-hidden">
@@ -243,13 +251,51 @@
             </div>
 
             <!-- History Area -->
-            <div id="history-area" class="hidden flex-1 w-full max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 overflow-y-auto">
-                <!-- History content will be injected here -->
+            <div id="history-area" class="hidden flex-1 w-full max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
+                <div class="flex items-center justify-between mb-6 flex-shrink-0">
+                    <h2 class="text-3xl font-black tracking-tight text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                        <i data-lucide="history" class="w-8 h-8 text-indigo-500"></i> Histórico de OMs
+                    </h2>
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="search" class="h-4 w-4"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                id="history-search-input"
+                                class="block w-64 pl-9 pr-3 py-2 rounded-lg text-sm transition-all outline-none shadow-sm bg-white border border-slate-200 focus:border-indigo-300 focus:ring-1 focus:ring-indigo-300 dark:bg-slate-800 dark:border-slate-700 dark:focus:border-indigo-600"
+                                placeholder="Pesquisar por nome ou OM..."
+                            />
+                        </div>
+                        <button id="delete-all-logs-btn" class="hidden flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-bold transition-colors dark:hover:bg-red-900/20 border border-transparent hover:border-red-100 dark:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i> Excluir Todos</button>
+                    </div>
+                </div>
+                <div id="logs-list-container" class="flex-1 overflow-y-auto pr-2 -mr-2"></div>
             </div>
 
             <!-- Kits Area -->
-            <div id="kits-area" class="hidden flex-1 w-full max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 overflow-y-auto">
-                <!-- Kits content will be injected here -->
+            <div id="kits-area" class="hidden flex-1 w-full max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
+                <div class="flex items-center justify-between mb-6 flex-shrink-0">
+                    <h2 class="text-3xl font-black tracking-tight text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                        <i data-lucide="package" class="w-8 h-8 text-purple-500"></i> Gerenciador de Kits
+                    </h2>
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="search" class="h-4 w-4"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                id="kit-search-input"
+                                class="block w-64 pl-9 pr-3 py-2 rounded-lg text-sm transition-all outline-none shadow-sm bg-white border border-slate-200 focus:border-indigo-300 focus:ring-1 focus:ring-indigo-300 dark:bg-slate-800 dark:border-slate-700 dark:focus:border-indigo-600"
+                                placeholder="Pesquisar kits..."
+                            />
+                        </div>
+                        <button id="delete-all-kits-btn" class="hidden flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-bold transition-colors dark:hover:bg-red-900/20 border border-transparent hover:border-red-100 dark:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i> Excluir Todos</button>
+                    </div>
+                </div>
+                <div id="kits-list-container" class="flex-1 overflow-y-auto pr-2 -mr-2"></div>
             </div>
 
             <!-- Settings Area -->
@@ -258,7 +304,7 @@
                     <i data-lucide="settings" class="w-8 h-8 text-indigo-500"></i> Configurações
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                     
                     <!-- Card: Aparência -->
                     <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
@@ -281,6 +327,17 @@
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="theme-toggle" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+                            <!-- Compact Mode -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label for="setting-compact-mode" class="font-medium text-slate-700 dark:text-slate-300 cursor-pointer block">Modo Compacto</label>
+                                    <span class="text-xs text-slate-500">Reduzir espaçamento da tabela</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="setting-compact-mode" class="sr-only peer">
                                     <div class="w-11 h-6 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
                                 </label>
                             </div>
@@ -322,11 +379,11 @@
                             <!-- Force Depot -->
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <label for="setting-force-depot" class="font-medium text-slate-700 dark:text-slate-300 cursor-pointer block">Forçar Padrão</label>
-                                    <span class="text-xs text-slate-500">Sempre usar o depósito padrão ao adicionar</span>
+                                    <label for="setting-allow-duplicates" class="font-medium text-slate-700 dark:text-slate-300 cursor-pointer block">Permitir Itens Duplicados</label>
+                                    <span class="text-xs text-slate-500">Permite adicionar o mesmo item várias vezes</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="setting-force-depot" class="sr-only peer">
+                                    <input type="checkbox" id="setting-allow-duplicates" class="sr-only peer">
                                     <div class="w-11 h-6 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>
                                 </label>
                             </div>
@@ -341,6 +398,53 @@
                                     <input type="checkbox" id="setting-check-e99" class="sr-only peer">
                                     <div class="w-11 h-6 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>
                                 </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card: Comportamento -->
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                                <i data-lucide="mouse-pointer-click" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">Comportamento</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Ajustes de usabilidade e fluxo</p>
+                            </div>
+                        </div>
+                        <div class="space-y-5">
+                            <!-- Remember Recipient -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label for="setting-remember-recipient" class="font-medium text-slate-700 dark:text-slate-300 cursor-pointer block">Lembrar último recebedor</label>
+                                    <span class="text-xs text-slate-500">Preenche o nome do recebedor automaticamente</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="setting-remember-recipient" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-500"></div>
+                                </label>
+                            </div>
+                            <!-- Hide Prices -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label for="setting-hide-prices" class="font-medium text-slate-700 dark:text-slate-300 cursor-pointer block">Ocultar Valores</label>
+                                    <span class="text-xs text-slate-500">Esconder preços e totais da tela</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="setting-hide-prices" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-500"></div>
+                                </label>
+                            </div>
+                            <!-- Items per page -->
+                            <div>
+                                <label for="setting-items-per-page" class="font-medium text-slate-700 dark:text-slate-300 block mb-1.5">Itens por página</label>
+                                <select id="setting-items-per-page" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 transition-all">
+                                    <option value="25">25</option>
+                                    <option value="50">50 (Padrão)</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -408,7 +512,7 @@
             <!-- Main content with bulk actions and list -->
             <div class="flex-1 flex overflow-hidden">
                 <!-- Items List -->
-                <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-2 scroll-smooth bg-white dark:bg-slate-950">
+                <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth bg-white dark:bg-slate-950">
                     <!-- Items injected via JS -->
                 </div>
                 <!-- Bulk Actions Sidebar -->
@@ -453,18 +557,26 @@
             </div>
 
             <!-- Footer Actions -->
-            <div class="p-4 flex-shrink-0 border-t border-slate-200 dark:border-slate-800 flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <button id="save-log-btn" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm font-bold transition-colors border border-slate-200 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 flex items-center justify-center gap-2" title="Salvar como OM">
-                        <i data-lucide="archive" class="w-4 h-4"></i> Salvar
-                    </button>
+            <div class="p-4 flex-shrink-0 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+                <div>
                     <button id="clear-cart-btn" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-bold transition-colors border border-transparent hover:border-red-100 dark:hover:bg-red-900/20 dark:hover:border-red-900/30 flex items-center justify-center gap-2 disabled:opacity-50">
                         <i data-lucide="trash-2" class="w-4 h-4"></i> Limpar
                     </button>
+                    <div id="cart-kit-creation-bar" class="hidden items-center gap-3">
+                        <span id="cart-kit-selection-count" class="text-sm font-medium text-slate-600 dark:text-slate-300">0 itens</span>
+                        <button id="cart-create-kit-btn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-500/20 active:scale-95">
+                            <i data-lucide="package-plus" class="w-4 h-4"></i> Criar Kit
+                        </button>
+                    </div>
                 </div>
-                <button id="copy-cart-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
-                    <i data-lucide="copy" class="w-4 h-4"></i> Copiar para SAP
-                </button>
+                <div class="flex items-center gap-3">
+                    <button id="save-log-btn" class="px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
+                        <i data-lucide="save" class="w-4 h-4"></i> Salvar
+                    </button>
+                    <button id="copy-cart-btn" class="px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
+                        <i data-lucide="copy" class="w-4 h-4"></i> Copiar para SAP
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -592,23 +704,6 @@
         </div>
     </div>
 
-    <!-- Kit Manager Modal -->
-    <div id="kit-manager-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden">
-            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800">
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <i data-lucide="package" class="w-5 h-5 text-purple-500"></i> Gerenciador de Kits
-                </h3>
-                <button id="close-kit-manager-btn" class="p-2 rounded-full hover:bg-slate-200 text-slate-500 dark:hover:bg-slate-700">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div id="kits-list-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50 dark:bg-slate-900">
-                <!-- Kits injected here -->
-            </div>
-        </div>
-    </div>
-
     <!-- Edit Kit Modal -->
     <div id="edit-kit-modal" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden">
@@ -670,16 +765,19 @@
             </div>
             
             <div class="flex-1 overflow-y-auto bg-white dark:bg-slate-900">
-                <table class="w-full text-left text-sm">
+                <table class="w-full text-left text-sm table-fixed">
                     <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
                         <tr>
-                            <th class="px-6 py-3 whitespace-nowrap">Material</th>
-                            <th class="px-6 py-3">Descrição</th>
-                            <th class="px-6 py-3 text-center">Qtd</th>
-                            <th class="px-6 py-3 text-right">V. Unit</th>
-                            <th class="px-6 py-3 text-right">Total</th>
-                            <th class="px-6 py-3">Recebedor</th>
-                            <th class="px-6 py-3">Depósito</th>
+                            <th class="px-4 py-3 w-[5%] text-center">
+                                <input type="checkbox" id="log-details-select-all" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:bg-slate-700 dark:border-slate-600">
+                            </th>
+                            <th class="px-6 py-3 w-[15%]">Material</th>
+                            <th class="px-6 py-3 w-[35%]">Descrição</th>
+                            <th class="px-6 py-3 text-center w-[8%]">Qtd</th>
+                            <th class="px-6 py-3 text-right w-[12%]">V. Unit</th>
+                            <th class="px-6 py-3 text-right w-[12%]">Total</th>
+                            <th class="px-6 py-3 w-[10%]">Recebedor</th>
+                            <th class="px-6 py-3 w-[8%]">Depósito</th>
                         </tr>
                     </thead>
                     <tbody id="log-details-body" class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -688,43 +786,54 @@
                 </table>
             </div>
 
-            <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-end gap-3">
-                <button id="log-details-restore-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-200 dark:shadow-none flex items-center gap-2">
-                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Carregar na Lista Atual
+            <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
+                <div>
+                    <span id="log-details-selection-count" class="text-sm font-medium text-slate-500 dark:text-slate-400">0 itens selecionados</span>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button id="log-details-load-all-btn" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors dark:text-slate-300 dark:hover:bg-slate-700 flex items-center gap-2">
+                        <i data-lucide="list-plus" class="w-4 h-4"></i> Carregar Tudo
+                    </button>
+                    <button id="log-details-load-selected-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-200 dark:shadow-none flex items-center gap-2 disabled:opacity-50" disabled>
+                        <i data-lucide="check-square" class="w-4 h-4"></i> Carregar Selecionados
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kit Load Modal (New) -->
+    <div id="kit-load-modal" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-purple-600 px-6 py-4 flex-shrink-0">
+                <h3 id="kit-load-modal-title" class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="download" class="w-5 h-5"></i> Carregar Kit na Lista
+                </h3>
+            </div>
+            <div class="p-6 space-y-4 flex-shrink-0 border-b border-slate-200 dark:border-slate-700">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Nome do Recebedor</label>
+                    <input type="text" id="kit-load-recipient-name" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-purple-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="Nome do funcionário">
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-1">
+                <div id="kit-load-modal-items-list" class="space-y-1 p-3">
+                    <!-- Items will be injected here by JS -->
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 flex gap-3 justify-end flex-shrink-0">
+                <button id="cancel-kit-load-modal-btn" class="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors dark:hover:bg-slate-800">Cancelar</button>
+                <button id="confirm-kit-load-modal-btn" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-lg shadow-purple-200 dark:shadow-none flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Carregar Itens
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Kit Item Quantity Modal -->
-    <div id="kit-item-quantity-modal" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-        <div class="rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden bg-white dark:bg-slate-900">
-            <div class="bg-purple-600 px-6 py-4">
-                <h3 class="text-white font-semibold flex items-center gap-2">
-                    <i data-lucide="package" class="w-5 h-5"></i> Carregar Kit
-                </h3>
-            </div>
-            <div class="p-6">
-                <div class="p-3 rounded-lg border bg-slate-50 border-slate-100 dark:bg-slate-800 dark:border-slate-700">
-                    <p class="text-xs text-slate-400 uppercase font-bold mb-1">Item do Kit</p>
-                    <p id="kit-item-desc" class="font-medium line-clamp-2 text-slate-800 dark:text-slate-200">Descrição do Item</p>
-                    <p id="kit-item-code" class="text-xs text-slate-500 mt-1 font-mono">CODE123</p>
-                </div>
-                <form id="kit-item-form" class="mt-4">
-                    <label for="kit-item-qty" class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Defina a Quantidade</label>
-                    <input type="number" id="kit-item-qty" required class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0">
-                    <div class="flex gap-3 mt-6">
-                        <button type="button" id="kit-item-cancel-btn" class="w-full px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors dark:hover:bg-slate-800">Cancelar Kit</button>
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                            Próximo Item <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script>
+        // DOM Elements
+        let elements = {};
+
         // State
         let state = {
             data: [],
@@ -735,13 +844,19 @@
             kitDraft: new Set(), // IDs of items selected for a new kit
             logs: [], // Saved OMs
             history: [], // Undo stack
+            kitSearchTerm: '',
+            historySearchTerm: '',
             isDarkMode: false,
+            compactMode: false,
+            hidePrices: false,
             searchTerm: '',
-            visibleCount: 50,
+            visibleCount: 50, // This will be initialized from itemsPerPage
             zoomLevel: 1,
+            itemsPerPage: 50,
             pendingItem: null,
             editingId: null,
             editingKitId: null,
+            loadingKitId: null,
             tempKitItems: [], // For editing a kit
             fileName: '',
             sheetName: '',
@@ -752,15 +867,14 @@
             dialogCallback: null,
             currentView: 'table',
             defaultDepot: 'E99',
-            forceDefaultDepot: false,
-            checkE99Availability: true
+            lastRecipientName: '',
+            allowDuplicates: false,
+            checkE99Availability: true, // default to true
+            rememberRecipient: true
         };
 
-        // DOM Elements
-        let elements = {};
-
         // Constants
-        const ITEMS_PER_PAGE = 50;
+        let ITEMS_PER_PAGE = 50; // Will be updated from state
 
         // Initialization
         document.addEventListener('DOMContentLoaded', () => {
@@ -848,6 +962,8 @@
                 // History (Logs)
                 kitsArea: document.getElementById('kits-area'),
                 historyArea: document.getElementById('history-area'),
+                historySearchInput: document.getElementById('history-search-input'),
+                logsListContainer: document.getElementById('logs-list-container'),
                 saveLogModal: document.getElementById('save-log-modal'),
                 logOmNumber: document.getElementById('log-om-number'),
                 logName: document.getElementById('log-name'),
@@ -863,17 +979,22 @@
                 logDetailsItemsCount: document.getElementById('log-details-items-count'),
                 logDetailsTotal: document.getElementById('log-details-total'),
                 logDetailsBody: document.getElementById('log-details-body'),
-                logDetailsRestoreBtn: document.getElementById('log-details-restore-btn'),
+                logDetailsSelectAll: document.getElementById('log-details-select-all'),
+                logDetailsSelectionCount: document.getElementById('log-details-selection-count'),
+                logDetailsLoadAllBtn: document.getElementById('log-details-load-all-btn'),
+                logDetailsLoadSelectedBtn: document.getElementById('log-details-load-selected-btn'),
 
                 // Kits
-                closeKitManagerBtn: document.getElementById('close-kit-manager-btn'),
+                kitSearchInput: document.getElementById('kit-search-input'),
                 kitsListContainer: document.getElementById('kits-list-container'),
-                kitItemQuantityModal: document.getElementById('kit-item-quantity-modal'),
-                kitItemForm: document.getElementById('kit-item-form'),
-                kitItemDesc: document.getElementById('kit-item-desc'),
-                kitItemCode: document.getElementById('kit-item-code'),
-                kitItemQty: document.getElementById('kit-item-qty'),
-                kitItemCancelBtn: document.getElementById('kit-item-cancel-btn'),
+
+                // Kit Load (New)
+                kitLoadModal: document.getElementById('kit-load-modal'),
+                kitLoadModalTitle: document.getElementById('kit-load-modal-title'),
+                kitLoadRecipientName: document.getElementById('kit-load-recipient-name'),
+                kitLoadModalItemsList: document.getElementById('kit-load-modal-items-list'),
+                cancelKitLoadModalBtn: document.getElementById('cancel-kit-load-modal-btn'),
+                confirmKitLoadModalBtn: document.getElementById('confirm-kit-load-modal-btn'),
 
                 // Kit Creation
                 kitSelectionBar: document.getElementById('kit-selection-bar'),
@@ -884,6 +1005,10 @@
                 newKitName: document.getElementById('new-kit-name'),
                 cancelCreateKitBtn: document.getElementById('cancel-create-kit-btn'),
                 confirmCreateKitBtn: document.getElementById('confirm-create-kit-btn'),
+
+                cartKitCreationBar: document.getElementById('cart-kit-creation-bar'),
+                cartKitSelectionCount: document.getElementById('cart-kit-selection-count'),
+                cartCreateKitBtn: document.getElementById('cart-create-kit-btn'),
 
                 // Edit Kit Modal
                 editKitModal: document.getElementById('edit-kit-modal'),
@@ -911,11 +1036,14 @@
                 // Settings
                 settingsArea: document.getElementById('settings-area'),
                 settingDefaultDepot: document.getElementById('setting-default-depot'),
-                settingForceDepot: document.getElementById('setting-force-depot'),
+                settingAllowDuplicates: document.getElementById('setting-allow-duplicates'),
                 settingCheckE99: document.getElementById('setting-check-e99'),
-                
-                kitManagerModal: document.getElementById('kit-manager-modal')
-                
+                settingRememberRecipient: document.getElementById('setting-remember-recipient'),
+                settingItemsPerPage: document.getElementById('setting-items-per-page'),
+                settingCompactMode: document.getElementById('setting-compact-mode'),
+                settingHidePrices: document.getElementById('setting-hide-prices'),
+                deleteAllKitsBtn: document.getElementById('delete-all-kits-btn'),
+                deleteAllLogsBtn: document.getElementById('delete-all-logs-btn')
                 // Toast
                 // toastContainer is fetched dynamically or we can add it here if needed, but showToast handles it.
             };
@@ -935,6 +1063,18 @@
             } else {
                 setDarkMode(false);
             }
+            
+            // Load settings from localStorage
+            state.defaultDepot = localStorage.getItem('stockDefaultDepot') || 'E99';;
+            state.allowDuplicates = localStorage.getItem('stockAllowDuplicates') === 'true';
+            state.checkE99Availability = localStorage.getItem('stockCheckE99') !== 'false'; // default to true
+            state.rememberRecipient = localStorage.getItem('stockRememberRecipient') !== 'false';
+            state.lastRecipientName = localStorage.getItem('stockLastRecipient') || '';
+            state.itemsPerPage = parseInt(localStorage.getItem('stockItemsPerPage'), 10) || 50;
+            state.compactMode = localStorage.getItem('stockCompactMode') === 'true';
+            state.hidePrices = localStorage.getItem('stockHidePrices') === 'true';
+            state.visibleCount = state.itemsPerPage;
+
             
             // Load persisted data
             try {
@@ -1033,16 +1173,45 @@
             if (elements.sidebarKitsBtn) elements.sidebarKitsBtn.addEventListener('click', () => switchView('kits'));
             if (elements.sidebarSettingsBtn) elements.sidebarSettingsBtn.addEventListener('click', () => switchView('settings'));
 
+            // Event Delegation for dynamic lists
+            if (elements.logsListContainer) {
+                elements.logsListContainer.addEventListener('click', handleLogListClick);
+                elements.logsListContainer.addEventListener('dblclick', handleLogListDblClick);
+            }
+
             // History & Kits
             if (elements.cancelLogBtn) elements.cancelLogBtn.addEventListener('click', () => elements.saveLogModal.classList.add('hidden'));
             if (elements.confirmSaveLogBtn) elements.confirmSaveLogBtn.addEventListener('click', saveCurrentLog);
+            if (elements.logDetailsLoadAllBtn) elements.logDetailsLoadAllBtn.addEventListener('click', () => {
+                const logId = elements.logDetailsLoadAllBtn.dataset.logId;
+                if (logId) restoreLog(parseInt(logId, 10));
+            });
+            if (elements.logDetailsLoadSelectedBtn) elements.logDetailsLoadSelectedBtn.addEventListener('click', () => loadSelectedFromLog());
+            if (elements.logDetailsSelectAll) elements.logDetailsSelectAll.addEventListener('change', (e) => {
+                elements.logDetailsBody.querySelectorAll('.log-item-checkbox').forEach(cb => {
+                    cb.checked = e.target.checked;
+                });
+                updateLogDetailsSelection();
+            });
             if (elements.closeLogDetailsBtn) elements.closeLogDetailsBtn.addEventListener('click', () => elements.logDetailsModal.classList.add('hidden'));
-            if (elements.closeKitManagerBtn) elements.closeKitManagerBtn.addEventListener('click', () => elements.kitManagerModal.classList.add('hidden'));
+            if (elements.historySearchInput) {
+                elements.historySearchInput.addEventListener('input', (e) => {
+                    state.historySearchTerm = e.target.value;
+                    renderLogsList();
+                });
+            }
+            if (elements.kitSearchInput) {
+                elements.kitSearchInput.addEventListener('input', (e) => {
+                    state.kitSearchTerm = e.target.value;
+                    renderKitsPage();
+                });
+            }
             
             if (elements.createKitBtn) elements.createKitBtn.addEventListener('click', openCreateKitModal);
             if (elements.clearKitSelectionBtn) elements.clearKitSelectionBtn.addEventListener('click', clearKitSelection);
             if (elements.cancelCreateKitBtn) elements.cancelCreateKitBtn.addEventListener('click', closeCreateKitModal);
             if (elements.confirmCreateKitBtn) elements.confirmCreateKitBtn.addEventListener('click', confirmCreateKit);
+            if (elements.cartCreateKitBtn) elements.cartCreateKitBtn.addEventListener('click', openCreateKitModal);
             
             // Edit Kit
             if (elements.closeEditKitBtn) elements.closeEditKitBtn.addEventListener('click', closeEditKitModal);
@@ -1131,6 +1300,9 @@
                         elements.modalSubmitBtn?.click(); // Submit immediately
                     }
                 });
+                elements.modalEmployee.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                });
             }
 
             if (elements.modalType) {
@@ -1167,14 +1339,51 @@
                 state.defaultDepot = e.target.value;
                 localStorage.setItem('stockDefaultDepot', state.defaultDepot);
             });
-            if (elements.settingForceDepot) elements.settingForceDepot.addEventListener('change', (e) => {
-                state.forceDefaultDepot = e.target.checked;
-                localStorage.setItem('stockForceDepot', String(state.forceDefaultDepot));
-            });
+            if (elements.settingAllowDuplicates) {
+                elements.settingAllowDuplicates.addEventListener('change', (e) => {
+                    state.allowDuplicates = e.target.checked;
+                    localStorage.setItem('stockAllowDuplicates', String(state.allowDuplicates));
+                });
+            }
             if (elements.settingCheckE99) elements.settingCheckE99.addEventListener('change', (e) => {
                 state.checkE99Availability = e.target.checked;
                 localStorage.setItem('stockCheckE99', String(state.checkE99Availability));
             });
+            if (elements.settingRememberRecipient) {
+                elements.settingRememberRecipient.addEventListener('change', (e) => {
+                    state.rememberRecipient = e.target.checked;
+                    localStorage.setItem('stockRememberRecipient', String(state.rememberRecipient));
+                });
+            }
+            if (elements.settingItemsPerPage) {
+                elements.settingItemsPerPage.addEventListener('change', (e) => {
+                    state.itemsPerPage = parseInt(e.target.value, 10);
+                    localStorage.setItem('stockItemsPerPage', state.itemsPerPage);
+                    // Reset view to apply new pagination
+                    state.visibleCount = state.itemsPerPage;
+                    if (state.currentView === 'table') renderTable();
+                });
+            }
+            if (elements.settingCompactMode) {
+                elements.settingCompactMode.addEventListener('change', (e) => {
+                    state.compactMode = e.target.checked;
+                    localStorage.setItem('stockCompactMode', String(state.compactMode));
+                    if (state.currentView === 'table') renderTable();
+                });
+            }
+            if (elements.settingHidePrices) {
+                elements.settingHidePrices.addEventListener('change', (e) => {
+                    state.hidePrices = e.target.checked;
+                    localStorage.setItem('stockHidePrices', String(state.hidePrices));
+                    // Force re-render of components that show prices
+                    if (state.currentView === 'table') renderTable();
+                    updateCartUI();
+                    renderLogsList();
+                });
+            }
+            if (elements.deleteAllKitsBtn) elements.deleteAllKitsBtn.addEventListener('click', deleteAllKits);
+            if (elements.deleteAllLogsBtn) elements.deleteAllLogsBtn.addEventListener('click', deleteAllLogs);
+
             
             // Keyboard Shortcuts
             document.addEventListener('keydown', (e) => {
@@ -1185,16 +1394,61 @@
                 if (e.key === 'Escape') {
                     closeModal();
                     closeCart();
-                    closeDialog();
+                    closeDialog(); 
                     // Close other modals
                     elements.saveLogModal.classList.add('hidden');
                     elements.createKitModal.classList.add('hidden');
                     elements.editKitModal.classList.add('hidden');
                     elements.logDetailsModal.classList.add('hidden');
-                    elements.kitItemQuantityModal.classList.add('hidden');
-                    elements.kitManagerModal.classList.add('hidden');
                 }
             });
+
+            // New Kit Load Modal
+            if (elements.cancelKitLoadModalBtn) elements.cancelKitLoadModalBtn.addEventListener('click', () => {
+                elements.kitLoadModal.classList.add('hidden');
+                state.loadingKitId = null;
+            });
+            if (elements.confirmKitLoadModalBtn) elements.confirmKitLoadModalBtn.addEventListener('click', confirmAndLoadKitItems);
+            if (elements.kitLoadRecipientName) {
+                elements.kitLoadRecipientName.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); elements.confirmKitLoadModalBtn.click(); }
+                });
+            }
+        }
+
+        function handleLogListClick(e) {
+            const logItemEl = e.target.closest('[data-log-id]');
+            if (!logItemEl) return;
+
+            const logId = parseInt(logItemEl.dataset.logId, 10);
+            const log = state.logs.find(l => l.id === logId);
+            if (!log) return;
+
+            // Clicked on delete button?
+            if (e.target.closest('.delete-btn')) {
+                deleteLog(log.id);
+                return;
+            }
+
+            // Clicked on arrow?
+            if (e.target.closest('.log-details-arrow')) {
+                openLogDetails(log);
+                return;
+            }
+        }
+
+        function handleLogListDblClick(e) {
+            const logItemEl = e.target.closest('[data-log-id]');
+            if (!logItemEl) return;
+
+            // Don't trigger on dblclick on a button
+            if (e.target.closest('button')) return;
+
+            const logId = parseInt(logItemEl.dataset.logId, 10);
+            const log = state.logs.find(l => l.id === logId);
+            if (log) {
+                openLogDetails(log);
+            }
         }
 
         // File Handling
@@ -1390,6 +1644,10 @@
                 const n = normalize(h);
                 return n.includes('dep') || n.includes('deposito');
             });
+            state.columns.price = cols.find(h => {
+                const n = normalize(h);
+                return n.includes('valor') || n.includes('unitario') || n.includes('preco') || n.includes('montante');
+            });
             
             // UI Updates
             elements.uploadArea.classList.add('hidden');
@@ -1432,7 +1690,7 @@
             state.data = [];
             state.headers = [];
             state.filteredData = [];
-            state.visibleCount = ITEMS_PER_PAGE;
+            state.visibleCount = state.itemsPerPage;
             if (elements.searchInput) elements.searchInput.value = '';
             if (elements.fileUpload) elements.fileUpload.value = '';
             
@@ -1477,6 +1735,7 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
+
         // Rendering
         function renderHeader() {
             elements.tableHeader.innerHTML = '';
@@ -1493,7 +1752,7 @@
                 const isMain = header === state.columns.description;
                 
                 th.className = `px-6 py-4 border-r border-transparent flex items-center gap-2 overflow-hidden ${
-                    isMain 
+                    isMain
                     ? state.isDarkMode ? 'text-indigo-400 bg-indigo-900/20' : 'text-indigo-600 bg-indigo-50/50' 
                     : ''
                 }`;
@@ -1575,7 +1834,7 @@
                 
                 // Action Cell (Add to Cart)
                 const actionCell = document.createElement('div');
-                actionCell.className = 'flex justify-center items-center gap-2 px-2 py-3';
+                actionCell.className = `flex justify-center items-center gap-2 px-2 ${state.compactMode ? 'py-1' : 'py-3'}`;
                 
                 const addBtn = document.createElement('button');
                 addBtn.className = `p-1.5 rounded-full transition-all ${
@@ -1609,7 +1868,7 @@
                     const isE99 = isDep && String(value).toUpperCase().trim() === 'E99';
                     
                     cell.className = `
-                        px-6 py-3 cursor-pointer select-none flex items-center
+                        px-6 ${state.compactMode ? 'py-1.5' : 'py-3'} cursor-pointer select-none flex items-center
                         ${isMain ? 'whitespace-normal' : 'whitespace-nowrap overflow-hidden text-ellipsis'}
                         border-r border-transparent
                         ${isMain 
@@ -1620,7 +1879,7 @@
                             : ''}
                     `;
                     cell.title = "Clique para copiar";
-                    cell.onclick = () => handleCopy(value);
+                    cell.onclick = () => handleCopy(value, cell);
 
                     // Formatter
                     let displayValue = value;
@@ -1631,14 +1890,23 @@
                             displayValue = new Intl.NumberFormat('pt-BR').format(Math.floor(num));
                         }
                     } else if (nHeader.includes('valor') || nHeader.includes('unitario') || nHeader.includes('preco')) {
-                        const formatted = formatNumber(value);
-                        if (formatted && formatted !== '') {
-                            displayValue = 'R$ ' + formatted;
+                        if (state.hidePrices) {
+                            displayValue = '---';
+                        } else {
+                            const formatted = formatNumber(value);
+                            if (formatted && formatted !== '') {
+                                displayValue = 'R$ ' + formatted;
+                            }
                         }
                     }
 
                     // Escape HTML to prevent XSS and fix warnings
                     displayValue = escapeHTML(displayValue);
+
+                    // Highlight ATTR (Caution items)
+                    if (typeof displayValue === 'string' && displayValue.toUpperCase().includes('ATTR')) {
+                        displayValue = displayValue.replace(/(ATTR)/gi, '<span class="text-red-500 dark:text-red-400 font-bold">$1</span>');
+                    }
 
                     // Highlight
                     if (state.searchTerm && displayValue.toLowerCase().includes(state.searchTerm.toLowerCase())) {
@@ -1647,22 +1915,39 @@
                         displayValue = displayValue.replace(regex, '<span class="bg-yellow-200 text-slate-900 font-semibold px-0.5 rounded">$1</span>');
                     }
 
-                    let content = `
-                        <div class="flex items-center justify-between gap-2 w-full ${isMain ? '' : 'overflow-hidden'}">
-                            <span class="${isMain ? '' : 'truncate'}">${displayValue}</span>
-                            ${isMain ? `
-                                <button
-                                    onclick="event.stopPropagation(); window.open('https://www.google.com/search?tbm=isch&q=${encodeURIComponent(value)}', '_blank')"
-                                    class="p-1.5 rounded-full transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100 ${state.isDarkMode ? 'text-slate-400 hover:text-white hover:bg-slate-700' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-200'}"
-                                    title="Buscar imagem no Google"
-                                >
-                                    <i data-lucide="image" class="w-4 h-4"></i>
-                                </button>
-                            ` : ''}
-                        </div>
-                    `;
-                    
-                    cell.innerHTML = content;
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = `flex items-center justify-between gap-2 w-full ${isMain ? '' : 'overflow-hidden'}`;
+
+                    const span = document.createElement('span');
+                    span.className = isMain ? '' : 'truncate';
+                    span.innerHTML = displayValue; // It's already highlighted and escaped
+                    contentDiv.appendChild(span);
+
+                    if (isMain) {
+                        const searchButton = document.createElement('button');
+                        searchButton.className = `p-1.5 rounded-full transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100 ${state.isDarkMode ? 'text-slate-400 hover:text-white hover:bg-slate-700' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-200'}`;
+                        searchButton.title = "Buscar imagem no Google";
+                        const googleIconSVG = `<svg viewBox="0 0 24 24" class="w-4 h-4"><path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.19,4.73C14.03,4.73 15.6,5.33 16.56,6.18L18.83,4.19C16.93,2.38 14.84,1.5 12.19,1.5C6.92,1.5 2.71,5.78 2.71,12C2.71,18.22 6.92,22.5 12.19,22.5C17.6,22.5 21.5,18.53 21.5,12.91C21.5,12.24 21.45,11.67 21.35,11.1Z"></path></svg>`;
+                        searchButton.innerHTML = googleIconSVG;
+
+                        searchButton.onclick = (event) => {
+                            event.stopPropagation();
+                            window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(value)}`, '_blank');
+
+                            rowDiv.classList.add('image-search-highlight');
+                            const originalIcon = searchButton.innerHTML;
+                            searchButton.innerHTML = `<i data-lucide="check" class="w-4 h-4 text-green-500"></i>`;
+                            if (lucide?.createIcons) lucide.createIcons();
+
+                            setTimeout(() => {
+                                if(rowDiv) rowDiv.classList.remove('image-search-highlight');
+                                if(searchButton) searchButton.innerHTML = originalIcon;
+                            }, 3000);
+                        };
+                        contentDiv.appendChild(searchButton);
+                    }
+
+                    cell.appendChild(contentDiv);
                     rowDiv.appendChild(cell);
                 });
                 
@@ -1688,7 +1973,7 @@
         function handleSearch(e) {
             const val = e && e.target ? e.target.value : '';
             state.searchTerm = val.toLowerCase();
-            state.visibleCount = ITEMS_PER_PAGE;
+            state.visibleCount = state.itemsPerPage;
             
             if (state.searchTerm) {
                 elements.clearSearchBtn.classList.remove('hidden');
@@ -1721,7 +2006,7 @@
         }
 
         function loadMore() {
-            state.visibleCount += ITEMS_PER_PAGE;
+            state.visibleCount += state.itemsPerPage;
             renderTable();
         }
 
@@ -1732,10 +2017,20 @@
             elements.zoomLevelDisplay.textContent = `${Math.round(state.zoomLevel * 100)}%`;
         }
 
-        function handleCopy(text) {
+        function handleCopy(text, element) {
             if (!text) return;
-            navigator.clipboard.writeText(text);
-            // Could add a toast here
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('success', 'Copiado', 'Conteúdo copiado com sucesso.');
+                
+                if (element) {
+                    // Feedback visual: Borda tracejada verde por 3 segundos
+                    element.classList.add('outline', 'outline-2', 'outline-dashed', 'outline-green-500', 'dark:outline-green-400', '-outline-offset-2', 'z-10');
+                    setTimeout(() => {
+                        element.classList.remove('outline', 'outline-2', 'outline-dashed', 'outline-green-500', 'dark:outline-green-400', '-outline-offset-2', 'z-10');
+                    }, 3000);
+                }
+            });
         }
 
         // --- Kit Selection Logic ---
@@ -1895,6 +2190,15 @@
 
         // Modal & Cart Logic
         function openModal(row) {
+            const materialCode = state.columns.code ? String(row[state.columns.code]) : null;
+            const existingCartItem = materialCode ? state.cart.find(item => item.materialCode === materialCode) : null;
+
+            if (existingCartItem && !state.allowDuplicates) {
+                showToast('info', 'Item já na lista', 'Abrindo para edição. Para adicionar duplicatas, mude a configuração.');
+                editCartItem(existingCartItem.id);
+                return;
+            }
+
             state.pendingItem = row;
             state.editingId = null;
             
@@ -1912,16 +2216,13 @@
             elements.modalItemDesc.textContent = state.columns.description ? row[state.columns.description] : 'Item sem descrição';
             elements.modalItemCode.textContent = state.columns.code ? row[state.columns.code] : '';
             elements.modalQty.value = '';
+            elements.modalEmployee.value = state.rememberRecipient ? state.lastRecipientName : '';
 
             // Depot Logic (Priority/Force)
-            if (state.forceDefaultDepot) {
-                elements.modalDepot.value = state.defaultDepot;
+            if (state.columns.depot && row[state.columns.depot]) {
+                elements.modalDepot.value = row[state.columns.depot];
             } else {
-                if (state.columns.depot && row[state.columns.depot]) {
-                    elements.modalDepot.value = row[state.columns.depot];
-                } else {
-                    elements.modalDepot.value = state.defaultDepot;
-                }
+                elements.modalDepot.value = state.defaultDepot;
             }
             
             elements.addModal.classList.remove('hidden');
@@ -1977,6 +2278,8 @@
             // Ensure cart is an array to prevent crashes
             if (!Array.isArray(state.cart)) state.cart = [];
             
+            const employeeName = elements.modalEmployee.value;
+
             if (state.editingId) {
                 // Update existing item
                 const index = state.cart.findIndex(item => item.id === state.editingId);
@@ -1986,9 +2289,8 @@
                         quantity: elements.modalQty.value,
                         type: elements.modalType.value,
                         depot: elements.modalDepot.value,
-                        employee: elements.modalEmployee.value
+                        employee: employeeName
                     };
-                    localStorage.setItem('stockCart', JSON.stringify(state.cart));
                     updateCartUI();
                     closeModal();
                 }
@@ -2004,17 +2306,22 @@
                     quantity: elements.modalQty.value,
                     type: elements.modalType.value,
                     depot: elements.modalDepot.value,
-                    employee: elements.modalEmployee.value
+                    employee: employeeName
                 };
                 
                 state.cart.push(newItem);
-                localStorage.setItem('stockCart', JSON.stringify(state.cart));
                 showToast('success', 'Adicionado', 'Item adicionado à lista.');
                 
                 updateCartUI();
                 closeModal();
                 if (state.data.length > 0) renderTable();
             }
+
+            if (state.rememberRecipient) {
+                state.lastRecipientName = employeeName;
+                localStorage.setItem('stockLastRecipient', employeeName);
+            }
+            localStorage.setItem('stockCart', JSON.stringify(state.cart));
         }
 
         function editCartItem(id) {
@@ -2073,7 +2380,9 @@
 
             const totalDisplay = document.getElementById('cart-total-display');
             const totalSection = document.getElementById('cart-total-section');
-            if (totalDisplay) totalDisplay.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValue);
+            if (totalDisplay) {
+                totalDisplay.textContent = state.hidePrices ? '---' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValue);
+            }
             if (totalSection) {
                 totalSection.classList.toggle('hidden', count === 0);
             }
@@ -2081,6 +2390,13 @@
             // Modal List
             elements.cartItemsContainer.innerHTML = '';
             
+            const selectedInCart = state.cart.filter(item => item.originalRow && state.kitDraft.has(item.originalRow._stockId)).length;
+
+            elements.cartKitCreationBar.classList.toggle('hidden', selectedInCart === 0);
+            elements.cartKitCreationBar.classList.toggle('flex', selectedInCart > 0);
+            elements.clearCartBtn.classList.toggle('hidden', selectedInCart > 0);
+            elements.cartKitSelectionCount.textContent = `${selectedInCart} ${selectedInCart === 1 ? 'item selecionado' : 'itens selecionados'}`;
+
             if (count === 0) {
                 document.getElementById('cart-status-text').textContent = 'A lista está vazia';
                 elements.cartItemsContainer.innerHTML = `
@@ -2100,31 +2416,64 @@
                 elements.copyCartBtn.disabled = false;
                 
                 state.cart.forEach((item, index) => {
+                    const price = getPriceFromRow(item.originalRow);
+                    const qty = parseFloat(item.quantity) || 0;
+                    const totalItemValue = price * qty;
+                    const formattedTotalItemValue = state.hidePrices ? '---' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalItemValue);
+
+                    const isSelectedForKit = item.originalRow && state.kitDraft.has(item.originalRow._stockId);
+
                     const el = document.createElement('div');
-                    el.className = `flex items-start gap-4 border-b p-3 transition-colors group ${
-                        state.isDarkMode ? 'border-slate-800 hover:bg-slate-900' : 'border-slate-100 hover:bg-slate-50'
-                    }`;
+                    el.className = `bg-white dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 flex gap-4 items-center transition-colors ${isSelectedForKit ? 'bg-purple-50/60 dark:bg-purple-900/20' : ''}`;
                     el.innerHTML = `
-                        <div class="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 ${
-                            state.isDarkMode ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-500'
-                        }">
-                            ${index + 1}
+                        <div class="flex-shrink-0">
+                            <input type="checkbox" onchange="toggleKitSelectionFromCart(this, '${item.originalRow?._stockId}')" ${isSelectedForKit ? 'checked' : ''} 
+                                   class="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-600 dark:bg-slate-700 dark:border-slate-600 cursor-pointer"
+                                   ${!item.originalRow ? 'disabled' : ''}>
+                        </div>
+                        <div class="flex-shrink-0 w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="package" class="w-5 h-5 text-slate-500 dark:text-slate-400"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-xs leading-tight ${state.isDarkMode ? 'text-slate-200' : 'text-slate-800'} line-clamp-2" title="${item.description}">${item.description}</p>
-                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-500 mt-1.5">
-                                <span class="font-mono bg-slate-100 dark:bg-slate-700 px-1 rounded text-slate-600 dark:text-slate-300">${item.materialCode}</span>
-                                <span class="flex items-center gap-0.5"><i data-lucide="boxes" class="w-3 h-3"></i> <strong>${item.quantity}</strong></span>
-                                <span class="flex items-center gap-0.5"><i data-lucide="warehouse" class="w-3 h-3"></i> ${item.depot || 'E99'}</span>
-                                <span class="flex items-center gap-0.5"><i data-lucide="user" class="w-3 h-3"></i> ${item.employee}</span>
+                            <p class="font-bold text-sm text-slate-800 dark:text-slate-100 truncate" title="${escapeHTML(item.description)}">${escapeHTML(item.description)}</p>
+                            <p class="text-sm font-mono text-slate-500 dark:text-slate-400">${escapeHTML(item.materialCode)}</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 mt-3 text-xs">
+                                <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                                    <i data-lucide="boxes" class="w-4 h-4 text-indigo-500 dark:text-indigo-400"></i>
+                                    <div>
+                                        <span class="block text-slate-400">Qtd</span>
+                                        <strong class="font-bold">${escapeHTML(item.quantity)}</strong>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                                    <i data-lucide="warehouse" class="w-4 h-4 text-indigo-500 dark:text-indigo-400"></i>
+                                    <div>
+                                        <span class="block text-slate-400">Depósito</span>
+                                        <strong class="font-bold">${escapeHTML(item.depot || 'E99')}</strong>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 truncate">
+                                    <i data-lucide="user" class="w-4 h-4 text-indigo-500 dark:text-indigo-400"></i>
+                                    <div class="truncate">
+                                        <span class="block text-slate-400">Recebedor</span>
+                                        <strong class="font-bold truncate" title="${escapeHTML(item.employee)}">${escapeHTML(item.employee)}</strong>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                    <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                                    <div>
+                                        <span class="block text-slate-400">Total</span>
+                                        <strong class="font-bold">${formattedTotalItemValue}</strong>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editCartItem('${item.id}')" class="text-slate-400 hover:text-indigo-500 p-1.5 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors" title="Editar">
-                                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                        <div class="flex items-center gap-1">
+                            <button onclick="editCartItem('${item.id}')" class="p-2 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-slate-700 transition-colors" title="Editar">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="removeFromCart('${item.id}')" class="text-slate-400 hover:text-red-500 p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors" title="Remover">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <button onclick="removeFromCart('${item.id}')" class="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-slate-700 transition-colors" title="Remover">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                     `;
@@ -2168,11 +2517,11 @@
             if (state.cart.length === 0) return Promise.resolve();
 
             // SAP usually requires CRLF (\r\n) for multi-line pasting on Windows
-            const text = state.cart.map(item => 
+            const textToCopy = state.cart.map(item => 
                 `${item.materialCode}\t\t${item.quantity}\t\t${item.type}\t\t${item.depot || 'E99'}\t\t\t\t\t${item.employee}`
             ).join('\r\n');
             
-            return navigator.clipboard.writeText(text).then(() => {
+            return navigator.clipboard.writeText(textToCopy).then(() => {
                 if (!isSilent) {
                     // Visual feedback on button
                     const btn = elements.copyCartBtn;
@@ -2183,17 +2532,19 @@
                     btn.className = "flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 scale-105";
                     if (typeof lucide !== 'undefined') lucide.createIcons();
 
+                    // Decide what to do after the animation
                     setTimeout(() => {
-                        closeCart(); 
                         showToast('success', 'Copiado para SAP', `${state.cart.length} itens copiados. Pronto para colar.`);
-                        
-                        // Reset button state
-                        setTimeout(() => {
-                            btn.innerHTML = originalContent;
-                            btn.className = originalClass;
-                            if (typeof lucide !== 'undefined') lucide.createIcons();
-                        }, 300);
                     }, 800);
+
+                    // Reset button state after a longer delay
+                    setTimeout(() => {
+                        // Check if button still exists, in case of rapid navigation
+                        if (!elements.copyCartBtn) return;
+                        btn.innerHTML = originalContent;
+                        btn.className = originalClass;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }, 1200);
                 }
             }).catch(err => {
                 console.error('Erro ao copiar:', err);
@@ -2230,10 +2581,17 @@
             const isKits = view === 'kits';
             const isSettings = view === 'settings';
 
+            // The 'justify-center' class is only for the initial upload view.
+            // Its presence in other views causes layout issues on different zoom levels by vertically centering content that should fill the screen.
+            const isUploadView = isTable && state.data.length === 0;
+            elements.mainContainer.classList.toggle('justify-center', isUploadView);
+
             // Toggle Areas
             elements.uploadArea.classList.toggle('hidden', !isTable || state.data.length > 0);
             elements.resultsArea.classList.toggle('hidden', !isTable || state.data.length === 0);
             elements.resultsArea.classList.toggle('flex', isTable && state.data.length > 0);
+            elements.kitsArea.classList.toggle('flex', isKits);
+            elements.historyArea.classList.toggle('flex', isHistory);
             elements.historyArea.classList.toggle('hidden', !isHistory);
 
             elements.settingsArea.classList.toggle('hidden', !isSettings);
@@ -2269,8 +2627,12 @@
             if (isSettings) {
                 // Ensure settings values are up-to-date in the UI
                 if (elements.settingDefaultDepot) elements.settingDefaultDepot.value = state.defaultDepot;
-                if (elements.settingForceDepot) elements.settingForceDepot.checked = state.forceDefaultDepot;
+                if (elements.settingAllowDuplicates) elements.settingAllowDuplicates.checked = state.allowDuplicates;
                 if (elements.settingCheckE99) elements.settingCheckE99.checked = state.checkE99Availability;
+                if (elements.settingRememberRecipient) elements.settingRememberRecipient.checked = state.rememberRecipient;
+                if (elements.settingItemsPerPage) elements.settingItemsPerPage.value = state.itemsPerPage;
+                if (elements.settingCompactMode) elements.settingCompactMode.checked = state.compactMode;
+                if (elements.settingHidePrices) elements.settingHidePrices.checked = state.hidePrices;
             }
         }
 
@@ -2279,10 +2641,20 @@
                 showToast('warning', 'Lista Vazia', 'Adicione itens antes de salvar.');
                 return;
             }
-            elements.logOmNumber.value = '';
-            elements.logName.value = '';
-            elements.saveLogModal.classList.remove('hidden');
-            elements.logOmNumber.focus();
+            showDialog(
+                'confirm',
+                'Salvar no histórico',
+                'Deseja salvar a lista de materiais atual no histórico de OMs?',
+                () => { // onConfirm
+                    elements.logOmNumber.value = '';
+                    elements.logName.value = '';
+                    elements.saveLogModal.classList.remove('hidden');
+                    elements.logOmNumber.focus();
+                },
+                () => { // onCancel
+                    closeCart();
+                } 
+            );
         }
 
         function saveCurrentLog() {
@@ -2307,6 +2679,7 @@
             
             elements.saveLogModal.classList.add('hidden');
             showToast('success', 'Histórico Salvo', 'Lista salva no histórico com sucesso!');
+            closeCart();
         }
 
         function getPriceFromRow(row) {
@@ -2326,19 +2699,34 @@
         }
 
         function renderLogsList() {
-            elements.historyArea.innerHTML = '';
-            const header = document.createElement('h2');
-            header.className = "text-3xl font-black tracking-tight text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-3";
-            header.innerHTML = `<i data-lucide="history" class="w-8 h-8 text-indigo-500"></i> Histórico de OMs`;
-            elements.historyArea.appendChild(header);
+            const container = elements.logsListContainer;
+            container.innerHTML = '';
 
-            if (state.logs.length === 0) {
-                elements.historyArea.innerHTML += '<div class="text-center py-20 text-slate-400"><i data-lucide="archive-x" class="w-16 h-16 mx-auto mb-4 opacity-30"></i><p>Nenhum histórico salvo ainda.</p></div>';
+            if (elements.deleteAllLogsBtn) {
+                elements.deleteAllLogsBtn.classList.toggle('hidden', state.logs.length === 0);
+            }
+
+            const searchTerm = (state.historySearchTerm || '').toLowerCase().trim();
+            const filteredLogs = searchTerm 
+                ? state.logs.filter(log => 
+                    log.name.toLowerCase().includes(searchTerm) || 
+                    log.om.toLowerCase().includes(searchTerm)
+                  )
+                : state.logs;
+
+            if (filteredLogs.length === 0) {
+                let emptyMessage = '';
+                if (searchTerm) {
+                    emptyMessage = `<div class="text-center py-20 text-slate-400"><i data-lucide="search-x" class="w-16 h-16 mx-auto mb-4 opacity-30"></i><p>Nenhum resultado para "<strong>${escapeHTML(searchTerm)}</strong>".</p></div>`;
+                } else {
+                    emptyMessage = '<div class="text-center py-20 text-slate-400"><i data-lucide="archive-x" class="w-16 h-16 mx-auto mb-4 opacity-30"></i><p>Nenhum histórico salvo ainda.</p></div>';
+                }
+                container.innerHTML = emptyMessage;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
-            state.logs.forEach(log => {
+            filteredLogs.forEach(log => {
                 const date = new Date(log.date);
                 const formattedDate = date.toLocaleDateString('pt-BR');
                 
@@ -2348,37 +2736,47 @@
                     const qty = parseFloat(item.quantity) || 0;
                     totalCost += price * qty;
                 });
-                const formattedTotal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalCost);
+                const formattedTotal = state.hidePrices ? '---' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalCost);
 
                 const el = document.createElement('div');
                 el.className = 'bg-white dark:bg-slate-900 p-5 mb-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 transition-all group shadow-sm hover:shadow-md';
-                el.onclick = (e) => {
-                    if (e.target.closest('.delete-btn')) return;
-                    openLogDetails(log);
-                };
+                el.dataset.logId = log.id; // For event delegation
 
                 el.innerHTML = `
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
-                            <span class="font-black text-lg text-indigo-600 dark:text-indigo-400">OM ${log.om}</span>
+                            <span class="font-black text-lg text-slate-900 dark:text-white">${escapeHTML(log.name)}</span>
                             <span class="text-xs text-slate-400">• ${formattedDate}</span>
                         </div>
-                        <p class="font-medium text-slate-800 dark:text-slate-200 text-base">${log.name}</p>
+                        <p class="font-medium text-purple-600 dark:text-purple-400 text-base">OM ${escapeHTML(log.om)}</p>
                         <div class="flex items-center gap-4 mt-2">
                             <p class="text-xs text-slate-500 flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> ${log.items.length} itens</p>
                             <p class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><i data-lucide="dollar-sign" class="w-3 h-3"></i> ${formattedTotal}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="event.stopPropagation(); deleteLog(${log.id})" class="delete-btn p-2 text-slate-400 hover:text-red-500 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        <div class="p-2 text-slate-300 group-hover:text-indigo-500 transition-colors"><i data-lucide="chevron-right" class="w-5 h-5"></i></div>
+                        <button class="delete-btn p-2 text-slate-400 hover:text-red-500 rounded-lg transition-colors" title="Excluir"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <div class="log-details-arrow p-2 text-slate-300 group-hover:text-indigo-500 transition-colors" title="Ver Itens"><i data-lucide="chevron-right" class="w-5 h-5"></i></div>
                     </div>
                 `;
-                elements.historyArea.appendChild(el);
+                container.appendChild(el);
             });
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         
+        function updateLogDetailsSelection() {
+            const checkboxes = elements.logDetailsBody.querySelectorAll('.log-item-checkbox:checked');
+            const count = checkboxes.length;
+
+            elements.logDetailsSelectionCount.textContent = `${count} ${count === 1 ? 'item selecionado' : 'itens selecionados'}`;
+            elements.logDetailsLoadSelectedBtn.disabled = count === 0;
+
+            const allCheckboxes = elements.logDetailsBody.querySelectorAll('.log-item-checkbox');
+            if (elements.logDetailsSelectAll) {
+                elements.logDetailsSelectAll.checked = allCheckboxes.length > 0 && count === allCheckboxes.length;
+            }
+        }
+
         function openLogDetails(log) {
             elements.logDetailsOm.textContent = `OM ${log.om}`;
             const logDate = new Date(log.date);
@@ -2394,37 +2792,75 @@
                 const qty = parseFloat(item.quantity) || 0;
                 const total = price * qty;
                 totalCost += total;
+                const displayPrice = state.hidePrices ? '---' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
+                const displayTotal = state.hidePrices ? '---' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total);
                 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors';
                 tr.innerHTML = `
-                    <td class="px-6 py-4 font-mono text-slate-600 dark:text-slate-400">${item.materialCode}</td>
-                    <td class="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">${item.description}</td>
+                    <td class="px-4 py-4 text-center">
+                        <input type="checkbox" class="log-item-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:bg-slate-700 dark:border-slate-600" data-item-id="${item.id}">
+                    </td>
+                    <td class="px-6 py-4 font-mono text-slate-600 dark:text-slate-400 truncate" title="${item.materialCode}">${item.materialCode}</td>
+                    <td class="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium truncate" title="${item.description}">${item.description}</td>
                     <td class="px-6 py-4 text-center font-bold text-slate-700 dark:text-slate-300">${qty}</td>
-                    <td class="px-6 py-4 text-right text-slate-500">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price)}</td>
-                    <td class="px-6 py-4 text-right font-bold text-emerald-600 dark:text-emerald-400">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}</td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400">${item.employee || '-'}</td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400">${item.depot || '-'}</td>
+                    <td class="px-6 py-4 text-right text-slate-500">${displayPrice}</td>
+                    <td class="px-6 py-4 text-right font-bold text-emerald-600 dark:text-emerald-400">${displayTotal}</td>
+                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400 truncate" title="${item.employee || ''}">${item.employee || '-'}</td>
+                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400 truncate" title="${item.depot || ''}">${item.depot || '-'}</td>
                 `;
                 elements.logDetailsBody.appendChild(tr);
             });
             
-            elements.logDetailsTotal.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalCost);
+            elements.logDetailsTotal.textContent = state.hidePrices ? '---' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalCost);
             
-            elements.logDetailsRestoreBtn.onclick = () => restoreLog(log.id);
+            // Store log id on the button to retrieve it later
+            elements.logDetailsLoadAllBtn.dataset.logId = log.id;
+
+            // Add event listeners for checkboxes
+            elements.logDetailsBody.querySelectorAll('.log-item-checkbox').forEach(cb => {
+                cb.addEventListener('change', updateLogDetailsSelection);
+            });
+
+            updateLogDetailsSelection(); // Initial state
             elements.logDetailsModal.classList.remove('hidden');
+        }
+
+        function loadSelectedFromLog() {
+            const logId = parseInt(elements.logDetailsLoadAllBtn.dataset.logId, 10);
+            const log = state.logs.find(l => l.id === logId);
+            if (!log) return;
+
+            const selectedIds = Array.from(elements.logDetailsBody.querySelectorAll('.log-item-checkbox:checked'))
+                                     .map(cb => cb.dataset.itemId);
+
+            if (selectedIds.length === 0) return;
+
+            const itemsToLoad = log.items.filter(item => selectedIds.includes(item.id));
+
+            // Add to cart, checking for duplicates based on settings
+            itemsToLoad.forEach(item => {
+                const alreadyInCart = !state.allowDuplicates && state.cart.some(cartItem => cartItem.materialCode === item.materialCode);
+                if (!alreadyInCart) {
+                    state.cart.push(JSON.parse(JSON.stringify(item))); // Add a deep copy
+                }
+            });
+            localStorage.setItem('stockCart', JSON.stringify(state.cart));
+            updateCartUI();
+            showToast('success', 'Itens Carregados', `${itemsToLoad.length} itens selecionados foram adicionados à lista.`);
+            elements.logDetailsModal.classList.add('hidden');
         }
 
         window.restoreLog = function(id) {
             const log = state.logs.find(l => l.id === id);
             if (!log) return;
+            elements.logDetailsModal.classList.add('hidden');
             showDialog('confirm', 'Carregar Lista', 'Isso substituirá sua lista atual. Deseja continuar?', () => {
                 state.cart = [...log.items];
                 localStorage.setItem('stockCart', JSON.stringify(state.cart));
                 updateCartUI();
                 if(state.data.length > 0) renderTable();
                 switchView('table');
-                elements.logDetailsModal.classList.add('hidden');
                 showToast('success', 'Carregado', 'Lista do histórico carregada.');
             });
         };
@@ -2439,39 +2875,50 @@
 
         // Kits Logic
         function renderKitsPage() {
-            elements.kitsArea.innerHTML = '';
-            const header = document.createElement('div');
-            header.className = "flex items-center justify-between mb-6";
-            header.innerHTML = `
-                <h2 class="text-3xl font-black tracking-tight text-slate-800 dark:text-slate-200 flex items-center gap-3">
-                    <i data-lucide="package" class="w-8 h-8 text-purple-500"></i> Gerenciador de Kits
-                </h2>
-                ${state.kits.length > 0 ? `<button onclick="deleteAllKits()" class="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-bold transition-colors dark:hover:bg-red-900/20 border border-transparent hover:border-red-100 dark:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i> Excluir Todos</button>` : ''}
-            `;
-            elements.kitsArea.appendChild(header);
+            const container = elements.kitsListContainer;
+            if (!container) return;
+            container.innerHTML = '';
 
-            if (state.kits.length === 0) {
-                elements.kitsArea.innerHTML += '<div class="text-center py-20 text-slate-400"><i data-lucide="package-x" class="w-16 h-16 mx-auto mb-4 opacity-30"></i><p>Nenhum kit criado ainda.</p><p class="text-xs mt-2">Selecione itens na tabela para criar um novo kit.</p></div>';
+            const searchTerm = (state.kitSearchTerm || '').toLowerCase().trim();
+            const filteredKits = searchTerm
+                ? state.kits.filter(kit => kit.name.toLowerCase().includes(searchTerm))
+                : state.kits;
+
+            if (elements.deleteAllKitsBtn) {
+                elements.deleteAllKitsBtn.classList.toggle('hidden', state.kits.length === 0);
+            }
+
+            if (filteredKits.length === 0) {
+                let emptyMessage = '';
+                if (searchTerm) {
+                    emptyMessage = `<div class="text-center py-20 text-slate-400"><i data-lucide="search-x" class="w-16 h-16 mx-auto mb-4 opacity-30"></i><p>Nenhum kit encontrado para "<strong>${escapeHTML(searchTerm)}</strong>".</p></div>`;
+                } else {
+                    emptyMessage = '<div class="text-center py-20 text-slate-400"><i data-lucide="package-x" class="w-16 h-16 mx-auto mb-4 opacity-30"></i><p>Nenhum kit criado ainda.</p><p class="text-xs mt-2">Selecione itens na tabela para criar um novo kit.</p></div>';
+                }
+                container.innerHTML = emptyMessage;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
-            state.kits.forEach(kit => {
+
+            filteredKits.forEach(kit => {
                 const el = document.createElement('div');
-                el.className = 'bg-white dark:bg-slate-900 p-4 mb-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center cursor-pointer group hover:border-purple-400 dark:hover:border-purple-600 transition-all';
+                el.className = 'bg-white dark:bg-slate-900 p-5 mb-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 transition-all group shadow-sm hover:shadow-md';
                 el.addEventListener('dblclick', () => openKitEditModal(kit.id));
 
                 el.innerHTML = `
-                    <div>
-                        <p class="font-medium text-slate-800 dark:text-slate-200 flex items-center gap-2">${kit.name} <span class="hidden group-hover:inline-flex text-xs items-center gap-1 text-purple-600 dark:text-purple-400 font-normal"><i data-lucide="mouse-pointer-2" class="w-3 h-3"></i> duplo clique para editar</span></p>
-                        <p class="text-xs text-slate-500 mt-1">${kit.items.length} itens no kit</p>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-lg text-slate-900 dark:text-white">${escapeHTML(kit.name)}</span>
+                        </div>
+                        <p class="font-medium text-purple-600 dark:text-purple-400 text-base">${kit.items.length} itens no kit</p>
                     </div>
-                    <div class="flex gap-2 items-center">
-                        <button onclick="event.stopPropagation(); loadKit(${kit.id})" class="px-3 py-1.5 text-xs font-medium bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-400 dark:hover:bg-purple-900">Carregar</button>
-                        <button onclick="event.stopPropagation(); deleteKit(${kit.id})" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        <i data-lucide="edit" class="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-purple-500 transition-colors"></i>
+                    <div class="flex items-center gap-2">
+                        <button onclick="event.stopPropagation(); loadKit(${kit.id})" class="px-4 py-2 text-sm font-bold bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">Carregar</button>
+                        <button onclick="event.stopPropagation(); openKitEditModal(${kit.id})" class="p-2 text-slate-400 hover:text-indigo-500 rounded-lg transition-colors" title="Editar Kit"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                        <button onclick="event.stopPropagation(); deleteKit(${kit.id})" class="p-2 text-slate-400 hover:text-red-500 rounded-lg transition-colors" title="Excluir Kit"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 `;
-                elements.kitsArea.appendChild(el);
+                container.appendChild(el);
             });
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
@@ -2485,6 +2932,15 @@
             });
         };
 
+        window.deleteAllLogs = function() {
+            showDialog('warning', 'Excluir Todo o Histórico', 'Tem certeza que deseja excluir <strong>TODO</strong> o histórico de OMs? Esta ação não pode ser desfeita.', () => {
+                state.logs = [];
+                localStorage.setItem('stockLogs', JSON.stringify(state.logs));
+                renderLogsList();
+                showToast('success', 'Histórico Excluído', 'Todo o histórico foi removido.');
+            });
+        };
+
         window.deleteKit = function(id) {
             showDialog('warning', 'Excluir Kit', 'Tem certeza que deseja excluir este kit?', () => {
                 state.kits = state.kits.filter(k => k.id !== id);
@@ -2493,67 +2949,207 @@
             });
         }
 
-        window.loadKit = async function(id) {
-            const kit = state.kits.find(k => k.id === id);
+        window.toggleKitSelectionFromCart = function(checkbox, stockId) {
+            if (!stockId || stockId === 'undefined') return; // Don't do anything if item has no original row
+            if (checkbox.checked) {
+                state.kitDraft.add(stockId);
+            } else {
+                state.kitDraft.delete(stockId);
+            }
+            updateKitSelectionUI(); // This updates the global bar
+            updateCartUI(); // This re-renders the cart with new selections and the cart's kit bar
+        }
+
+        function confirmAndLoadKitItems() {
+            if (!state.loadingKitId) return;
+
+            const kit = state.kits.find(k => k.id === state.loadingKitId);
             if (!kit) return;
 
-            switchView('table');
-            
-            const defaultEmployee = state.cart.length > 0 ? state.cart[0].employee : '';
-            const employeeName = prompt('Qual o nome do recebedor para os itens deste kit?', defaultEmployee);
+            const employeeName = elements.kitLoadRecipientName.value.trim();
             if (!employeeName) {
-                showToast('info', 'Cancelado', 'O nome do recebedor é necessário.');
+                showToast('error', 'Nome Obrigatório', 'O nome do recebedor é necessário.');
+                elements.kitLoadRecipientName.focus();
                 return;
             }
 
-            for (const item of kit.items) {
-                try {
-                    const quantity = await promptForKitItemQuantity(item);
-                    const newItem = {
-                        id: Math.random().toString(36).substring(2, 11),
-                        originalRow: item.originalRow,
-                        materialCode: item.materialCode,
-                        description: item.description,
-                        quantity: quantity,
-                        type: 'L',
-                        depot: item.originalRow[state.columns.depot] || 'E99',
-                        employee: employeeName
-                    };
-                    state.cart.push(newItem);
-                } catch (error) {
-                    showToast('info', 'Cancelado', 'Carregamento do kit interrompido.');
-                    updateCartUI();
-                    return;
+            const itemElements = document.querySelectorAll('#kit-load-modal-items-list .kit-load-item');
+            const itemsToLoad = [];
+
+            itemElements.forEach(el => {
+                const checkbox = el.querySelector('.kit-item-checkbox');
+                if (checkbox && checkbox.checked) {
+                    const qtyInput = el.querySelector('.kit-item-qty');
+                    const quantity = parseFloat(qtyInput.value);
+                    const materialCode = el.dataset.materialCode;
+
+                    if (quantity > 0) {
+                        // Find the original item from the kit
+                        const originalKitItem = kit.items.find(i => i.materialCode === materialCode);
+                        if (originalKitItem) {
+                            itemsToLoad.push({
+                                ...originalKitItem, // contains originalRow, description, materialCode
+                                quantity: quantity,
+                                employee: employeeName
+                            });
+                        }
+                    }
                 }
+            });
+
+            if (itemsToLoad.length === 0) {
+                showToast('info', 'Nenhum Item', 'Nenhum item foi selecionado ou as quantidades são zero.');
+                return;
             }
-            
+
+            // Add items to cart
+            for (const item of itemsToLoad) {
+                const newItem = {
+                    id: Math.random().toString(36).substring(2, 11),
+                    originalRow: item.originalRow,
+                    materialCode: item.materialCode,
+                    description: item.description,
+                    quantity: item.quantity,
+                    type: 'L', // Default type
+                    depot: item.originalRow[state.columns.depot] || state.defaultDepot,
+                    employee: item.employee
+                };
+                state.cart.push(newItem);
+            }
+
             localStorage.setItem('stockCart', JSON.stringify(state.cart));
-            updateCartUI();
-            showToast('success', 'Kit Carregado', `Itens do kit "${kit.name}" adicionados.`);
+            
+            // Close this modal, open the cart
+            elements.kitLoadModal.classList.add('hidden');
+            state.loadingKitId = null;
+            openCart();
+            showToast('success', 'Kit Carregado', `${itemsToLoad.length} itens do kit "${kit.name}" foram adicionados.`);
         }
 
-        function promptForKitItemQuantity(item) {
-            return new Promise((resolve, reject) => {
-                elements.kitItemDesc.textContent = item.description;
-                elements.kitItemCode.textContent = item.materialCode;
-                elements.kitItemQty.value = '';
-                elements.kitItemQuantityModal.classList.remove('hidden');
-                elements.kitItemQty.focus();
+        window.loadKit = function(id) {
+            const kit = state.kits.find(k => k.id === id);
+            if (!kit) return;
 
-                const handleSubmit = (e) => {
-                    e.preventDefault();
-                    cleanup();
-                    resolve(elements.kitItemQty.value);
-                };
-                const handleCancel = () => { cleanup(); reject(); };
-                const cleanup = () => {
-                    elements.kitItemForm.removeEventListener('submit', handleSubmit);
-                    elements.kitItemCancelBtn.removeEventListener('click', handleCancel);
-                    elements.kitItemQuantityModal.classList.add('hidden');
-                };
+            state.loadingKitId = id;
 
-                elements.kitItemForm.addEventListener('submit', handleSubmit);
-                elements.kitItemCancelBtn.addEventListener('click', handleCancel);
+            // Populate new modal
+            elements.kitLoadModalTitle.textContent = `Carregar Kit: ${kit.name}`;
+            
+            const defaultEmployee = state.cart.length > 0 ? state.cart[0].employee : '';
+            elements.kitLoadRecipientName.value = defaultEmployee;
+
+            const itemsContainer = elements.kitLoadModalItemsList;
+            itemsContainer.innerHTML = ''; // Clear previous
+
+            if (!kit.items || kit.items.length === 0) {
+                itemsContainer.innerHTML = `<div class="text-center text-sm text-slate-400 py-8">Este kit está vazio.</div>`;
+            } else {
+                kit.items.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'kit-load-item flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50';
+                    itemEl.dataset.materialCode = item.materialCode;
+                    itemEl.innerHTML = `
+                        <input type="checkbox" checked class="kit-item-checkbox h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-600 dark:bg-slate-700 dark:border-slate-600 flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-sm text-slate-800 dark:text-slate-200 truncate" title="${escapeHTML(item.description)}">${escapeHTML(item.description)}</p>
+                            <p class="text-xs font-mono text-slate-500">${escapeHTML(item.materialCode)}</p>
+                        </div>
+                        <div class="w-24 flex-shrink-0">
+                            <label class="text-xs sr-only">Quantidade</label>
+                            <input type="number" value="1" min="1" class="kit-item-qty w-full px-2 py-1.5 text-sm border rounded-md outline-none focus:ring-2 focus:ring-purple-500 dark:bg-slate-800 dark:border-slate-700">
+                        </div>
+                    `;
+                    itemsContainer.appendChild(itemEl);
+                });
+            }
+
+            // Show the modal
+            switchView('table'); // Ensure we are on the main view
+            elements.kitLoadModal.classList.remove('hidden');
+            setTimeout(() => elements.kitLoadRecipientName.focus(), 100);
+        }
+
+        function exportAllData() {
+            const settingsToSave = {
+                defaultDepot: state.defaultDepot,
+                checkE99Availability: state.checkE99Availability,
+                allowDuplicates: state.allowDuplicates,
+                rememberRecipient: state.rememberRecipient,
+                itemsPerPage: state.itemsPerPage,
+                theme: state.isDarkMode ? 'dark' : 'light',
+                compactMode: state.compactMode,
+                hidePrices: state.hidePrices
+            };
+
+            const backupData = {
+                version: '1.0',
+                createdAt: new Date().toISOString(),
+                kits: state.kits,
+                logs: state.logs,
+                settings: settingsToSave
+            };
+
+            const dataStr = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().slice(0, 10);
+            a.href = url;
+            a.download = `stock_backup_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('success', 'Exportado', 'Backup de dados salvo com sucesso.');
+        }
+
+        function importAllData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (!importedData.kits || !importedData.logs || !importedData.settings) {
+                        throw new Error('Arquivo de backup inválido ou corrompido.');
+                    }
+
+                    showDialog('confirm', 'Importar Dados', 'Isso substituirá seus kits, histórico e configurações atuais pelos dados do arquivo. Deseja continuar?', () => {
+                        state.kits = importedData.kits || [];
+                        state.logs = importedData.logs || [];
+                        
+                        const settings = importedData.settings || {};
+                        localStorage.setItem('stockKits', JSON.stringify(state.kits));
+                        localStorage.setItem('stockLogs', JSON.stringify(state.logs));
+                        localStorage.setItem('stockDefaultDepot', settings.defaultDepot || 'E99');
+                        localStorage.setItem('stockCheckE99', String(settings.checkE99Availability !== false));
+                        localStorage.setItem('stockAllowDuplicates', String(settings.allowDuplicates || false));
+                        localStorage.setItem('stockRememberRecipient', String(settings.rememberRecipient !== false));
+                        localStorage.setItem('stockItemsPerPage', String(settings.itemsPerPage || 50));
+                        localStorage.setItem('stockCompactMode', String(settings.compactMode || false));
+                        localStorage.setItem('stockHidePrices', String(settings.hidePrices || false));
+                        if (settings.theme) localStorage.setItem('theme', settings.theme);
+
+                        showToast('success', 'Importado', 'Dados restaurados. A página será recarregada.');
+                        setTimeout(() => location.reload(), 1500);
+                    });
+
+                } catch (err) {
+                    console.error("Erro ao importar dados:", err);
+                    showToast('error', 'Erro de Importação', err.message);
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllApplicationData() {
+            showDialog('warning', 'Limpar Todos os Dados', '<strong>Atenção!</strong> Esta ação é irreversível e irá apagar <strong>TODOS</strong> os seus kits, histórico e configurações. Deseja continuar?', () => {
+                localStorage.clear();
+                showToast('success', 'Dados Apagados', 'A aplicação será reiniciada.');
+                setTimeout(() => location.reload(), 1500);
             });
         }
 
@@ -2676,13 +3272,15 @@
                 dialogConfirmBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700', 'shadow-indigo-200');
                 dialogIcon.setAttribute('data-lucide', 'help-circle');
                 dialogCancelBtn.classList.remove('hidden');
-                dialogConfirmBtn.textContent = 'Confirmar';
+                dialogConfirmBtn.textContent = 'Sim';
+                dialogCancelBtn.textContent = 'Não';
             } else if (type === 'warning') {
-                dialogIconContainer.classList.add('bg-amber-100', 'text-amber-600', 'dark:bg-amber-900/30', 'dark:text-amber-400');
-                dialogConfirmBtn.classList.add('bg-amber-600', 'hover:bg-amber-700', 'shadow-amber-200');
+                dialogIconContainer.classList.add('bg-red-100', 'text-red-600', 'dark:bg-red-900/30', 'dark:text-red-400');
+                dialogConfirmBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'shadow-red-200');
                 dialogIcon.setAttribute('data-lucide', 'alert-circle');
                 dialogCancelBtn.classList.remove('hidden');
                 dialogConfirmBtn.textContent = 'Sim, remover';
+                dialogCancelBtn.textContent = 'Cancelar';
             }
 
             if (typeof lucide !== 'undefined') lucide.createIcons();
