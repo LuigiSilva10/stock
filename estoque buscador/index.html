@@ -612,12 +612,12 @@
                     </div>
 
                     <!-- Inline Inputs -->
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
                         <div>
                             <label for="modal-qty" class="block text-xs font-medium mb-1 text-slate-500">Quantidade</label>
                             <input type="number" id="modal-qty" required class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700">
                         </div>
-                        <div>
+                        <div class="sm:col-span-2">
                             <label for="modal-employee" class="block text-xs font-medium mb-1 text-slate-500">Recebedor</label>
                             <input type="text" id="modal-employee" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700" placeholder="Nome">
                         </div>
@@ -777,11 +777,11 @@
                                 <input type="checkbox" id="log-details-select-all" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:bg-slate-700 dark:border-slate-600">
                             </th>
                             <th class="px-6 py-3 w-[15%]">Material</th>
-                            <th class="px-6 py-3 w-[35%]">Descrição</th>
+                            <th class="px-6 py-3 w-[30%]">Descrição</th>
                             <th class="px-6 py-3 text-center w-[8%]">Qtd</th>
                             <th class="px-6 py-3 text-right w-[12%]">V. Unit</th>
                             <th class="px-6 py-3 text-right w-[12%]">Total</th>
-                            <th class="px-6 py-3 w-[10%]">Recebedor</th>
+                            <th class="px-6 py-3 w-[15%]">Recebedor</th>
                             <th class="px-6 py-3 w-[8%]">Depósito</th>
                         </tr>
                     </thead>
@@ -2469,11 +2469,11 @@
                                         <strong class="font-bold">${escapeHTML(item.depot || 'E99')}</strong>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 truncate">
-                                    <i data-lucide="user" class="w-4 h-4 text-indigo-500 dark:text-indigo-400"></i>
-                                    <div class="truncate">
+                                <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                                    <i data-lucide="user" class="w-4 h-4 text-indigo-500 dark:text-indigo-400 flex-shrink-0"></i>
+                                    <div>
                                         <span class="block text-slate-400">Recebedor</span>
-                                        <strong class="font-bold truncate" title="${escapeHTML(item.employee)}">${escapeHTML(item.employee)}</strong>
+                                        <strong class="font-bold block leading-tight break-words" title="${escapeHTML(item.employee)}">${escapeHTML(item.employee)}</strong>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
@@ -2834,7 +2834,7 @@
                     <td class="px-6 py-4 text-center font-bold text-slate-700 dark:text-slate-300">${qty}</td>
                     <td class="px-6 py-4 text-right text-slate-500">${displayPrice}</td>
                     <td class="px-6 py-4 text-right font-bold text-emerald-600 dark:text-emerald-400">${displayTotal}</td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400 truncate" title="${item.employee || ''}">${item.employee || '-'}</td>
+                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400 break-words" title="${item.employee || ''}">${item.employee || '-'}</td>
                     <td class="px-6 py-4 text-slate-600 dark:text-slate-400 truncate" title="${item.depot || ''}">${item.depot || '-'}</td>
                 `;
                 elements.logDetailsBody.appendChild(tr);
