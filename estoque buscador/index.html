@@ -2277,6 +2277,25 @@
             if (!Array.isArray(state.cart)) state.cart = [];
             
             const employeeName = elements.modalEmployee.value;
+            
+            // Lógica para TINTA e DILUENTE (Multiplicação de unidade)
+            let finalQty = elements.modalQty.value;
+            
+            // Só aplica a multiplicação se for um item novo (não edição)
+            if (state.pendingItem && !state.editingId) {
+                const desc = state.columns.description ? String(state.pendingItem[state.columns.description]).toUpperCase() : '';
+                const qtyNum = parseFloat(finalQty);
+
+                if (!isNaN(qtyNum)) {
+                    if (desc.includes('TINTA')) {
+                        // Multiplica por 3.6 e mantém até 2 casas decimais
+                        finalQty = parseFloat((qtyNum * 3.6).toFixed(2));
+                    } else if (desc.includes('DILUENTE THINNER')) {
+                        // Multiplica por 5 e mantém até 2 casas decimais
+                        finalQty = parseFloat((qtyNum * 5).toFixed(2));
+                    }
+                }
+            }
 
             if (state.editingId) {
                 // Update existing item
@@ -2284,7 +2303,7 @@
                 if (index !== -1) {
                     state.cart[index] = {
                         ...state.cart[index],
-                        quantity: elements.modalQty.value,
+                        quantity: finalQty,
                         type: elements.modalType.value,
                         depot: elements.modalDepot.value,
                         employee: employeeName
@@ -2301,7 +2320,7 @@
                     originalRow: state.pendingItem,
                     materialCode: state.columns.code ? String(state.pendingItem[state.columns.code]) : 'N/A',
                     description: state.columns.description ? String(state.pendingItem[state.columns.description]) : 'Item sem descrição',
-                    quantity: elements.modalQty.value,
+                    quantity: finalQty,
                     type: elements.modalType.value,
                     depot: elements.modalDepot.value,
                     employee: employeeName
@@ -2515,9 +2534,11 @@
             if (state.cart.length === 0) return Promise.resolve();
 
             // SAP usually requires CRLF (\r\n) for multi-line pasting on Windows
-            const textToCopy = state.cart.map(item => 
-                `${item.materialCode}\t\t${item.quantity}\t\t${item.type}\t\t${item.depot || 'E99'}\t\t\t\t\t${item.employee}`
-            ).join('\r\n');
+            const textToCopy = state.cart.map(item => {
+                // Garante que a quantidade tenha vírgula em vez de ponto para o SAP
+                const qtyFormatted = String(item.quantity).replace('.', ',');
+                return `${item.materialCode}\t\t${qtyFormatted}\t\t${item.type}\t\t${item.depot || 'E99'}\t\t\t\t\t${item.employee}`;
+            }).join('\r\n');
             
             return navigator.clipboard.writeText(textToCopy).then(() => {
                 if (!isSilent) {
