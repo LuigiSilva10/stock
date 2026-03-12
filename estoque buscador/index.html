@@ -1901,9 +1901,9 @@
                     // Escape HTML to prevent XSS and fix warnings
                     displayValue = escapeHTML(displayValue);
 
-                    // Highlight ATTR (Caution items)
-                    if (typeof displayValue === 'string' && displayValue.toUpperCase().includes('ATTR')) {
-                        displayValue = displayValue.replace(/(ATTR)/gi, '<span class="text-red-500 dark:text-red-400 font-bold">$1</span>');
+                    // Highlight ATTR, BUCHA, EIXO (Caution items)
+                    if (typeof displayValue === 'string') {
+                        displayValue = displayValue.replace(/(ATTR|BUCHA|EIXO)/gi, '<span class="text-red-500 dark:text-red-400 font-bold">$1</span>');
                     }
 
                     // Highlight
@@ -3058,7 +3058,7 @@
                     itemEl.innerHTML = `
                         <input type="checkbox" checked class="kit-item-checkbox h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-600 dark:bg-slate-700 dark:border-slate-600 flex-shrink-0">
                         <div class="flex-1 min-w-0">
-                            <p class="font-medium text-sm text-slate-800 dark:text-slate-200 truncate" title="${escapeHTML(item.description)}">${escapeHTML(item.description)}</p>
+                            <p class="font-medium text-sm text-slate-800 dark:text-slate-200 truncate" title="${escapeHTML(item.description)}">${escapeHTML(item.description).replace(/(ATTR|BUCHA|EIXO)/gi, '<span class="text-red-500 dark:text-red-400 font-bold">$1</span>')}</p>
                             <p class="text-xs font-mono text-slate-500">${escapeHTML(item.materialCode)}</p>
                         </div>
                         <div class="w-24 flex-shrink-0">
