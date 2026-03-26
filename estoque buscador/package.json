@@ -1,0 +1,12 @@
+{
+  "name": "stock-plus",
+  "version": "1.0.0",
+  "description": "Sistema de Gerenciamento de Estoque",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^28.2.0"
+  }
+}
